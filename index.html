@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terafab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Mohave';
+      src: url('assets/fonts/Mohave/Mohave-VariableFont_wght.ttf') format('truetype');
+      font-weight: 300 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Mohave';
+      src: url('assets/fonts/Mohave/Mohave-Italic-VariableFont_wght.ttf') format('truetype');
+      font-weight: 300 700;
+      font-style: italic;
+      font-display: swap;
+    }
+  </style>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      width: 100%;
+      overflow-x: hidden;
+      background: #06060a;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: #fff;
+    }
+
+    ::-webkit-scrollbar { display: none; }
+
+    /* ── Scene / Background ─────────────────────── */
+
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .scene-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 90% 70% at 50% 35%, #181825 0%, #0c0c16 45%, #04040b 100%);
+      animation: breathe 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes breathe {
+      from { opacity: 1; }
+      to   { opacity: 0.82; }
+    }
+
+    /*
+      Replace .scene-bg when video is available:
+      <video class="scene-video" loop playsinline autoplay muted
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+        <source src="media/TERAFAB_ELECTRIC_V13_WEB.mp4" type="video/mp4">
+      </video>
+    */
+
+    .scene-grain {
+      position: absolute;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 192px 192px;
+    }
+
+    .scene-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 110% 90% at 50% 50%, transparent 35%, rgba(0,0,0,0.65) 100%);
+    }
+
+    /* ── Hero ───────────────────────────────────── */
+
+    .hero {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 0 24px;
+      user-select: none;
+    }
+
+    .wordmark {
+      display: flex;
+      align-items: center;
+    }
+
+    .wordmark img {
+      height: 58px;
+      width: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .subtitle {
+      margin-bottom: 18px;
+      font-family: 'Mohave', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.42);
+      padding-right: 0.3em;
+    }
+
+    .v-rule {
+      margin: 42px 0 18px;
+      width: 1px;
+      height: 52px;
+      background: linear-gradient(to bottom,
+        transparent,
+        rgba(255, 255, 255, 0.22) 25%,
+        rgba(255, 255, 255, 0.22) 75%,
+        transparent
+      );
+    }
+
+    .logos {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .logo-link img {
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: 0.5;
+      transition: opacity 0.28s ease;
+      display: block;
+    }
+
+    .logo-link:hover img { opacity: 0.88; }
+
+    .logo-tesla  img { height: 17px; }
+    .logo-xai    img { height: 22px; }
+    .logo-spacex img { height: 22px; }
+
+    .logo-sep {
+      width: 1px;
+      height: 13px;
+      background: rgba(255, 255, 255, 0.16);
+      flex-shrink: 0;
+    }
+
+    .buttons {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 30px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
+    }
+
+    .btn-solid {
+      background: rgba(255, 255, 255, 0.94);
+      color: #08080f;
+      border: 1px solid transparent;
+    }
+
+    .btn-solid:hover { background: #ffffff; }
+
+    .btn-ghost {
+      background: transparent;
+      color: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.94);
+    }
+
+    /* ── Hero entrance animations ────────────────── */
+
+    .appear {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .d1 { animation-delay: 0.12s; }
+    .d2 { animation-delay: 0.28s; }
+    .d3 { animation-delay: 0.44s; }
+    .d4 { animation-delay: 0.58s; }
+    .d5 { animation-delay: 0.70s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── First text (splash) ─────────────────────── */
+
+    .section-splash-text {
+      position: relative;
+      z-index: 1;
+      padding: 88px 24px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .splash-text {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.45rem);
+      font-weight: 300;
+      line-height: 1.72;
+      color: rgba(255, 255, 255, 0.62);
+      max-width: 660px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .splash-text.is-visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── Reveal section (second text) ───────────── */
+
+    .section-reveal {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      padding: 100px 24px 100px;
+    }
+
+    .reveal-text {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      font-weight: 300;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.74);
+      max-width: 740px;
+      text-align: center;
+    }
+
+    .reveal-line {
+      display: block;
+    }
+
+    .reveal-line.bold {
+      font-weight: 500;
+    }
+
+    /* No transition-delay here — scroll position drives visibility */
+    .char {
+      display: inline-block;
+      opacity: 0;
+      transition: opacity 0.35s ease-out;
+    }
+
+    .char.is-visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Scene ──────────────────────────────────── -->
+  <div class="scene">
+    <div class="scene-bg"></div>
+    <div class="scene-grain"></div>
+    <div class="scene-vignette"></div>
+  </div>
+
+  <!-- ── Hero ───────────────────────────────────── -->
+  <section class="hero">
+
+    <div class="wordmark appear d1">
+      <img src="assets/images/terafablogo.svg" alt="TERAFAB">
+    </div>
+
+    <div class="logos appear d2">
+      <a href="https://www.tesla.com/careers" target="_blank" class="logo-link logo-tesla">
+        <img src="assets/images/teslalogo.svg" alt="Tesla">
+      </a>
+      <div class="logo-sep"></div>
+      <a href="https://x.ai/careers" target="_blank" class="logo-link logo-xai">
+        <img src="assets/images/xailogo.svg" alt="xAI">
+      </a>
+      <div class="logo-sep"></div>
+      <a href="https://www.spacex.com/careers" target="_blank" class="logo-link logo-spacex">
+        <img src="assets/images/spacexlogo.svg" alt="SpaceX">
+      </a>
+    </div>
+
+    <div class="v-rule appear d3"></div>
+
+    <div class="subtitle appear d4">Join us on our journey</div>
+
+    <div class="buttons appear d5">
+      <a class="btn btn-solid" target="_blank" href="https://x.com/i/broadcasts/1yKAPMzlvgWxb">
+        Watch Now
+      </a>
+      <a class="btn btn-ghost" target="_blank" href="mailto:jobs@terafab.ai?subject=Join%20Terafab...">
+        Share Your Resume
+      </a>
+    </div>
+
+  </section>
+
+  <!-- ── First text (on splash) ─────────────────── -->
+  <section class="section-splash-text">
+    <p class="splash-text">
+      Tesla, SpaceX, and xAI are launching the most epic chip-building effort ever —
+      combining logic, memory and advanced packaging under one roof.
+    </p>
+  </section>
+
+  <!-- ── Second text (scroll-driven reveal) ──────── -->
+  <section class="section-reveal">
+    <div class="reveal-text" data-reveal>
+      <span class="reveal-line">Terafab will close the gap between today's</span>
+      <span class="reveal-line">chip production and the future's demand —</span>
+      <span class="reveal-line bold">a future among the stars.</span>
+    </div>
+  </section>
+
+  <script>
+    // ── Splash text: fade in on scroll ────────────
+    new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('is-visible');
+      });
+    }, { threshold: 0.15 }).observe(document.querySelector('.splash-text'));
+
+    // ── Reveal text: staggered character reveal on scroll ─
+    (function () {
+      const container = document.querySelector('[data-reveal]');
+      if (!container) return;
+
+      const CHAR_MS  = 22;
+      const LINE_GAP = 8;
+      let slot = 0;
+
+      container.querySelectorAll('.reveal-line').forEach((line, i) => {
+        if (i > 0) slot += LINE_GAP;
+        const text = line.textContent;
+        line.textContent = '';
+
+        for (const ch of text) {
+          if (ch === ' ') {
+            line.appendChild(document.createTextNode(' '));
+            slot++;
+          } else {
+            const span = document.createElement('span');
+            span.className = 'char';
+            span.textContent = ch;
+            span.style.transitionDelay = (slot * CHAR_MS) + 'ms';
+            line.appendChild(span);
+            slot++;
+          }
+        }
+      });
+
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting)
+            e.target.querySelectorAll('.char').forEach(c => c.classList.add('is-visible'));
+        });
+      }, { threshold: 0.2 }).observe(container);
+    })();
+  </script>
+
+</body>
+</html>
