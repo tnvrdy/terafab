@@ -751,6 +751,32 @@
       line-height: 1.2;
     }
 
+    /* ── Footer ─────────────────────────────────────── */
+
+    .section-footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 160px;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+
+    .section-footer.is-visible { opacity: 1; }
+
+    .footer-subtitle {
+      font-family: 'Mohave', sans-serif;
+      font-size: 19px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin-bottom: 18px;
+    }
+
     /* ── Chips heading section ──────────────────────── */
 
     .section-chips-heading {
@@ -881,13 +907,13 @@
 
     <div class="v-rule appear d3"></div>
 
-    <div class="subtitle appear d4">Join us on our journey</div>
+    <div class="footer-subtitle appear d4">Join Us</div>
 
     <div class="buttons appear d5">
-      <a class="btn btn-solid" target="_blank" href="https://x.com/i/broadcasts/1yKAPMzlvgWxb">
+      <a class="btn btn-ghost" target="_blank" href="https://x.com/i/broadcasts/1yKAPMzlvgWxb">
         Watch Now
       </a>
-      <a class="btn btn-ghost" target="_blank" href="mailto:jobs@terafab.ai?subject=Join%20Terafab...">
+      <a class="btn btn-solid" target="_blank" href="mailto:jobs@terafab.ai?subject=Join%20Terafab...">
         Share Your Resume
       </a>
     </div>
@@ -1135,6 +1161,39 @@
     </div>
   </section>
 
+  <!-- ── Footer ───────────────────────────────────── -->
+  <section class="section-footer" id="section-footer">
+
+    <div class="wordmark">
+      <img src="assets/images/terafablogo.svg" alt="TERAFAB">
+    </div>
+
+    <div class="logos">
+      <a href="https://www.tesla.com/careers" target="_blank" class="logo-link logo-tesla">
+        <img src="assets/images/teslalogo.svg" alt="Tesla">
+      </a>
+      <div class="logo-sep"></div>
+      <a href="https://x.ai/careers" target="_blank" class="logo-link logo-xai">
+        <img src="assets/images/xailogo.svg" alt="xAI">
+      </a>
+      <div class="logo-sep"></div>
+      <a href="https://www.spacex.com/careers" target="_blank" class="logo-link logo-spacex">
+        <img src="assets/images/spacexlogo.svg" alt="SpaceX">
+      </a>
+    </div>
+
+    <div class="v-rule"></div>
+
+    <div class="footer-subtitle">Join Us</div>
+
+    <div class="buttons">
+      <a class="btn btn-solid" target="_blank" href="mailto:jobs@terafab.ai?subject=Join%20Terafab...">
+        Share Your Resume
+      </a>
+    </div>
+
+  </section>
+
   <script>
     // ── Splash text: fade in on scroll ────────────
     new IntersectionObserver((entries) => {
@@ -1367,6 +1426,15 @@
     // ── Building photo: fade in on scroll ─────────
     (function () {
       const el = document.getElementById('section-building');
+      if (!el) return;
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) el.classList.add('is-visible'); });
+      }, { threshold: 0.15 }).observe(el);
+    })();
+
+    // ── Footer ───────────────────────────────────
+    (function () {
+      const el = document.getElementById('section-footer');
       if (!el) return;
       new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) el.classList.add('is-visible'); });
