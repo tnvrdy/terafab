@@ -574,6 +574,55 @@
       line-height: 1.65;
       text-align: center;
     }
+
+    /* ── Builders section ────────────────────────── */
+
+    .section-builders {
+      position: relative;
+      z-index: 1;
+      padding: 40px 10% 220px 10%;
+    }
+
+    .builders-logos {
+      margin-top: 56px;
+      display: flex;
+      justify-content: space-between;
+      gap: 32px;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .builders-logos.is-visible { opacity: 1; }
+
+    .builder-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .builder-rule {
+      margin-top: 18px;
+      width: 96%;
+      height: 1px;
+      background: linear-gradient(to right, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+    }
+
+    .builder-list {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .builder-list-item {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.78rem, 1.2vw, 0.95rem);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: rgba(255, 255, 255, 0.50);
+      line-height: 2.1;
+    }
   </style>
 </head>
 <body>
@@ -731,6 +780,55 @@
             <div class="stat-number" data-final="1 TW+">—</div>
             <div class="stat-label">SOLAR POWER NEEDED</div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── "We're Builders." section ──────────────── -->
+  <section class="section-builders">
+    <div class="aspire-text" data-reveal-builders>
+      <span class="reveal-line">WE'RE BUILDERS.</span>
+      <span class="reveal-line bold">WE'VE DONE THE IMPOSSIBLE BEFORE.</span>
+    </div>
+    <div class="builders-logos" id="builders-logos">
+      <div class="builder-col">
+        <a href="https://www.tesla.com/careers" target="_blank" class="logo-link logo-tesla">
+          <img src="assets/images/teslalogo.svg" alt="Tesla">
+        </a>
+        <div class="builder-rule"></div>
+        <div class="builder-list">
+          <div class="builder-list-item">Delivered 8M+ vehicles to date.</div>
+          <div class="builder-list-item">Launched AI-based camera-only unsupervised self-driving vehicles.</div>
+          <div class="builder-list-item">Designed Tesla Optimus to support large-scale production.</div>
+          <div class="builder-list-item">Delivered 109 GWh+ of energy storage globally.</div>
+          <div class="builder-list-item">Built global Gigafactories in record time.</div>
+          <div class="builder-list-item">Built the first and only lithium refinery in the U.S.</div>
+        </div>
+      </div>
+      <div class="builder-col">
+        <a href="https://x.ai/careers" target="_blank" class="logo-link logo-xai">
+          <img src="assets/images/xailogo.svg" alt="xAI">
+        </a>
+        <div class="builder-rule"></div>
+        <div class="builder-list">
+          <div class="builder-list-item">Built first GW-scale AI training cluster.</div>
+          <div class="builder-list-item">Created largest coherent supercomputer.</div>
+          <div class="builder-list-item">Only company capable of building orbital AI compute at scale.</div>
+        </div>
+      </div>
+      <div class="builder-col">
+        <a href="https://www.spacex.com/careers" target="_blank" class="logo-link logo-spacex">
+          <img src="assets/images/spacexlogo.svg" alt="SpaceX">
+        </a>
+        <div class="builder-rule"></div>
+        <div class="builder-list">
+          <div class="builder-list-item">Developed first reusable rockets.</div>
+          <div class="builder-list-item">Returned human spaceflight capabilities to the U.S.</div>
+          <div class="builder-list-item">Launches 90% of global mass to orbit.</div>
+          <div class="builder-list-item">Operates world's largest space-based internet network.</div>
+          <div class="builder-list-item">Built largest PCB manufacturing site in the U.S.</div>
+          <div class="builder-list-item">Flies world's most powerful rocket ever.</div>
         </div>
       </div>
     </div>
@@ -939,6 +1037,32 @@
             }
           });
         }, { threshold: 0.3 }).observe(scalingHeader);
+      }
+    })();
+
+    // ── Builders section ─────────────────────────
+    // "WE'RE BUILDERS." = 15 chars, "WE'VE DONE THE IMPOSSIBLE BEFORE." = 33 chars
+    // line gap = 8 slots, total last slot = 15 + 8 + 33 = 56 → done ≈ 1582ms
+    (function () {
+      const buildersText  = document.querySelector('[data-reveal-builders]');
+      const buildersLogos = document.getElementById('builders-logos');
+      const BUILDERS_DONE_MS = 56 * CHAR_MS + TRANS_MS;
+
+      if (buildersText) buildChars(buildersText);
+
+      let fired = false;
+      if (buildersText) {
+        new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting && !fired) {
+              fired = true;
+              showChars(buildersText);
+              if (buildersLogos) {
+                setTimeout(() => buildersLogos.classList.add('is-visible'), BUILDERS_DONE_MS);
+              }
+            }
+          });
+        }, { threshold: 0.3 }).observe(buildersText);
       }
     })();
 
