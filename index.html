@@ -624,6 +624,104 @@
       line-height: 2.1;
     }
 
+    /* ── Chip gallery ───────────────────────────────── */
+
+    .section-chip-gallery {
+      position: relative;
+      z-index: 1;
+      padding: 0 12% 120px;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+    }
+
+    .section-chip-gallery.is-visible { opacity: 1; }
+
+    .chip-gallery {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    .chip-card {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .chip-card-front {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 13;
+    }
+
+    .chip-card-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .chip-label {
+      position: absolute;
+      top: 13px;
+      left: 13px;
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.62rem, 0.9vw, 0.78rem);
+      font-weight: 300;
+      letter-spacing: 0.14em;
+      color: rgba(255, 255, 255, 0.88);
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .chip-hover-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(6, 6, 10, 0.82);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(-100%);
+      transition: transform 0.40s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chip-card:hover .chip-hover-overlay {
+      transform: translateX(0);
+    }
+
+    .chip-back-text {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.9rem, 1.6vw, 1.3rem);
+      font-weight: 300;
+      letter-spacing: 0.10em;
+      color: rgba(255, 255, 255, 0.90);
+      text-align: center;
+      line-height: 1.5;
+      text-transform: uppercase;
+      padding: 0 20px;
+    }
+
+    /* ── Chips heading section ──────────────────────── */
+
+    .section-chips-heading {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      padding: 80px 10% 80px;
+    }
+
+    .chips-heading-text {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: rgba(255, 255, 255, 0.80);
+      text-align: center;
+    }
+
     /* ── Two-stat section ──────────────────────────── */
 
     .section-two-stats {
@@ -930,6 +1028,54 @@
     </div>
   </section>
 
+  <!-- ── Chips heading ────────────────────────────── -->
+  <section class="section-chips-heading">
+    <div class="chips-heading-text" data-reveal-chips>
+      <span class="reveal-line">PRODUCING CHIPS FOR USE ON EARTH AND IN SPACE</span>
+    </div>
+  </section>
+
+  <!-- ── Chip gallery ──────────────────────────────── -->
+  <section class="section-chip-gallery" id="chip-gallery">
+    <div class="chip-gallery">
+      <div class="chip-card" style="--card-border: rgba(196,148,68,0.70)">
+        <div class="chip-card-front">
+          <img src="assets/images/chips/chip-ai5.png" alt="AI5">
+          <span class="chip-label">AI5</span>
+          <div class="chip-hover-overlay">
+            <div class="chip-back-text">POWERING FULL<br>SELF-DRIVING</div>
+          </div>
+        </div>
+      </div>
+      <div class="chip-card" style="--card-border: rgba(186,148,68,0.70)">
+        <div class="chip-card-front">
+          <img src="assets/images/chips/chip-ai6.png" alt="AI6">
+          <span class="chip-label">AI6</span>
+          <div class="chip-hover-overlay">
+            <div class="chip-back-text">POWERING TESLA OPTIMUS</div>
+          </div>
+        </div>
+      </div>
+      <div class="chip-card" style="--card-border: rgba(88,140,196,0.70)">
+        <div class="chip-card-front">
+          <img src="assets/images/chips/chip-d3.png" alt="D3">
+          <span class="chip-label">D3</span>
+          <div class="chip-hover-overlay">
+            <div class="chip-back-text">POWERING SPACE</div>
+          </div>
+        </div>
+      </div>
+      <div class="chip-card" style="--card-border: rgba(190,145,128,0.70)">
+        <div class="chip-card-front">
+          <img src="assets/images/chips/chip-beyond.png" alt="Beyond">
+          <div class="chip-hover-overlay">
+            <div class="chip-back-text">AND BEYOND</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <script>
     // ── Splash text: fade in on scroll ────────────
     new IntersectionObserver((entries) => {
@@ -1166,6 +1312,32 @@
       new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) el.classList.add('is-visible'); });
       }, { threshold: 0.15 }).observe(el);
+    })();
+
+    // ── Chip gallery ─────────────────────────────
+    (function () {
+      const el = document.getElementById('chip-gallery');
+      if (!el) return;
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) el.classList.add('is-visible'); });
+      }, { threshold: 0.1 }).observe(el);
+    })();
+
+    // ── Chips heading ────────────────────────────
+    // "PRODUCING CHIPS FOR USE ON EARTH AND IN SPACE" = 45 slots → done ≈ 1340ms
+    (function () {
+      const el = document.querySelector('[data-reveal-chips]');
+      if (!el) return;
+      buildChars(el);
+      let fired = false;
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting && !fired) {
+            fired = true;
+            showChars(el);
+          }
+        });
+      }, { threshold: 0.4 }).observe(el);
     })();
 
     // ── Two-stat section ─────────────────────────
