@@ -623,6 +623,84 @@
       color: rgba(255, 255, 255, 0.50);
       line-height: 2.1;
     }
+
+    /* ── Two-stat section ──────────────────────────── */
+
+    .section-two-stats {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-end;
+      padding: 80px 10% 100px;
+    }
+
+    .two-stat-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+    }
+
+    .two-stat-col.is-visible { opacity: 1; }
+
+    .two-stat-number {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(2rem, 4.4vw, 3.7rem);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .two-stat-number--lg {
+      transition: font-size 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .two-stat-col.is-visible .two-stat-number--lg {
+      font-size: clamp(3rem, 6.5vw, 5.5rem);
+    }
+
+    .two-stat-label {
+      margin-top: 14px;
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.78rem, 1.3vw, 1rem);
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      color: rgba(255, 255, 255, 0.40);
+      line-height: 1.6;
+    }
+
+    /* ── Building photo ─────────────────────────── */
+
+    .section-building {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+
+    .section-building.is-visible { opacity: 1; }
+
+    .building-img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .building-vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 55% 50% at 0% 0%,   rgba(6,6,10,0.97) 0%, transparent 100%),
+        radial-gradient(ellipse 55% 50% at 100% 0%, rgba(6,6,10,0.97) 0%, transparent 100%),
+        radial-gradient(ellipse 90% 80% at 50% 50%, transparent 30%, #06060a 100%);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -812,7 +890,7 @@
         </a>
         <div class="builder-rule"></div>
         <div class="builder-list">
-          <div class="builder-list-item">Built first GW-scale AI training cluster.</div>
+          <div class="builder-list-item">Built first-ever GW-scale AI training cluster.</div>
           <div class="builder-list-item">Created largest coherent supercomputer.</div>
           <div class="builder-list-item">Only company capable of building orbital AI compute at scale.</div>
         </div>
@@ -823,7 +901,7 @@
         </a>
         <div class="builder-rule"></div>
         <div class="builder-list">
-          <div class="builder-list-item">Developed first reusable rockets.</div>
+          <div class="builder-list-item">Developed first-ever reusable rockets.</div>
           <div class="builder-list-item">Returned human spaceflight capabilities to the U.S.</div>
           <div class="builder-list-item">Launches 90% of global mass to orbit.</div>
           <div class="builder-list-item">Operates world's largest space-based internet network.</div>
@@ -831,6 +909,24 @@
           <div class="builder-list-item">Flies world's most powerful rocket ever.</div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ── Building photo ──────────────────────────── -->
+  <section class="section-building" id="section-building">
+    <img src="assets/images/terafab-building.jpg" alt="Terafab facility" class="building-img">
+    <div class="building-vignette"></div>
+  </section>
+
+  <!-- ── Two-stat section ─────────────────────────── -->
+  <section class="section-two-stats">
+    <div class="two-stat-col" id="two-stat-left">
+      <div class="two-stat-number" data-final="0.5 TW/YEAR">—</div>
+      <div class="two-stat-label">CURRENT U.S. CONSUMPTION</div>
+    </div>
+    <div class="two-stat-col" id="two-stat-right">
+      <div class="two-stat-number two-stat-number--lg" data-final="1 TW/YEAR">—</div>
+      <div class="two-stat-label">TERAFAB OUTPUT</div>
     </div>
   </section>
 
@@ -985,6 +1081,29 @@
       }
     })();
 
+    // ── Shared number animation ───────────────────
+    function animateNumber(el, finalText) {
+      const DURATION     = 950;
+      const SETTLE_START = 0.70;
+      const start        = performance.now();
+      function fakeNum() { return (Math.floor(Math.random() * 9e9) + 1e9).toLocaleString(); }
+      function tick(now) {
+        const t = Math.min((now - start) / DURATION, 1);
+        if (t >= 1) { el.textContent = finalText; el.style.filter = ''; return; }
+        if (t < SETTLE_START) {
+          el.style.filter = `blur(${(5 * (1 - t / SETTLE_START)).toFixed(1)}px)`;
+          el.textContent = fakeNum();
+        } else {
+          const ct = (t - SETTLE_START) / (1 - SETTLE_START);
+          const b  = 5 * (1 - ct);
+          el.style.filter = b > 0.1 ? `blur(${b.toFixed(1)}px)` : '';
+          el.textContent = finalText;
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
     // ── Scaling section ───────────────────────────
     // "SCALING FOR MASSIVE CAPACITY" last char at slot 27 → done ≈ 944ms
     (function () {
@@ -993,32 +1112,6 @@
       const SCALING_DONE_MS = 27 * CHAR_MS + TRANS_MS;
 
       if (scalingHeader) buildChars(scalingHeader);
-
-      function animateNumber(el, finalText) {
-        const DURATION     = 950;
-        const SETTLE_START = 0.70;
-        const start        = performance.now();
-
-        function fakeNum() {
-          return (Math.floor(Math.random() * 9e9) + 1e9).toLocaleString();
-        }
-
-        function tick(now) {
-          const t = Math.min((now - start) / DURATION, 1);
-          if (t >= 1) { el.textContent = finalText; el.style.filter = ''; return; }
-          if (t < SETTLE_START) {
-            el.style.filter = `blur(${(5 * (1 - t / SETTLE_START)).toFixed(1)}px)`;
-            el.textContent = fakeNum();
-          } else {
-            const ct = (t - SETTLE_START) / (1 - SETTLE_START);
-            const b  = 5 * (1 - ct);
-            el.style.filter = b > 0.1 ? `blur(${b.toFixed(1)}px)` : '';
-            el.textContent = finalText;
-          }
-          requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-      }
 
       let scalingFired = false;
       if (scalingHeader) {
@@ -1064,6 +1157,34 @@
           });
         }, { threshold: 0.3 }).observe(buildersText);
       }
+    })();
+
+    // ── Building photo: fade in on scroll ─────────
+    (function () {
+      const el = document.getElementById('section-building');
+      if (!el) return;
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) el.classList.add('is-visible'); });
+      }, { threshold: 0.15 }).observe(el);
+    })();
+
+    // ── Two-stat section ─────────────────────────
+    (function () {
+      const cols = document.querySelectorAll('.two-stat-col');
+      if (!cols.length) return;
+      cols.forEach(col => {
+        const numEl = col.querySelector('.two-stat-number');
+        if (numEl) numEl.textContent = numEl.dataset.final;
+      });
+      let fired = false;
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting && !fired) {
+            fired = true;
+            cols.forEach(col => col.classList.add('is-visible'));
+          }
+        });
+      }, { threshold: 0.3 }).observe(cols[0]);
     })();
 
     // ── Scroll-to-black + aspire gate ────────────
