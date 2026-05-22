@@ -322,7 +322,7 @@
     .kard-word {
       display: block;
       font-family: 'Mohave', sans-serif;
-      font-size: clamp(3rem, 8vw, 7rem);
+      font-size: clamp(4rem, 8.8vw, 8.8rem);
       font-weight: 700;
       letter-spacing: 0.02em;
       text-transform: uppercase;
@@ -336,6 +336,120 @@
     .kard-word.is-visible {
       opacity: 1;
       transform: none;
+    }
+
+    /* ── Kardashev timeline ─────────────────────── */
+
+    .kard-scale-row {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .kard-timeline {
+      flex: 1;
+      padding-left: 28px;
+      /* Nudge down so the dot-line sits at SCALE's vertical center */
+      margin-top: calc(clamp(2rem, 4.4vw, 4.4rem) - 4.5px);
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+
+    .kard-timeline.is-visible { opacity: 1; }
+
+    .timeline-track {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .timeline-line {
+      position: absolute;
+      top: 4px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(to right,
+        rgba(255,255,255,0.20),
+        rgba(255,255,255,0.26) 8%,
+        rgba(255,255,255,0.26) 92%,
+        rgba(255,255,255,0.08)
+      );
+    }
+
+    .timeline-tier {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .tier-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow:
+        0 0 6px 2px rgba(255,255,255,0.50),
+        0 0 14px 5px rgba(255,255,255,0.16);
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+      transition: box-shadow 0.22s ease;
+    }
+
+    .timeline-tier:hover .tier-dot,
+    .timeline-tier.is-active .tier-dot {
+      box-shadow:
+        0 0 10px 3px rgba(255,255,255,0.85),
+        0 0 24px 8px rgba(255,255,255,0.28);
+    }
+
+    .tier-drop-line {
+      width: 1px;
+      height: 18px;
+      background: rgba(255,255,255,0.20);
+      flex-shrink: 0;
+    }
+
+    .tier-box {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 13px 18px;
+      text-align: left;
+      cursor: pointer;
+      color: #fff;
+      width: min(90%, 200px);
+      transition: border-color 0.22s ease, background 0.22s ease;
+    }
+
+    .timeline-tier:hover .tier-box,
+    .timeline-tier.is-active .tier-box {
+      border-color: rgba(255,255,255,0.46);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .tier-label {
+      font-family: 'Mohave', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.86);
+      margin-bottom: 7px;
+    }
+
+    .tier-desc {
+      font-family: 'Mohave', sans-serif;
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.52);
+    }
+
+    .tier-desc strong {
+      font-weight: 500;
+      color: rgba(255,255,255,0.82);
     }
   </style>
 </head>
@@ -413,7 +527,41 @@
   <section class="section-kardashev" data-kardashev>
     <span class="kard-word">THE</span>
     <span class="kard-word">KARDASHEV</span>
-    <span class="kard-word">SCALE</span>
+    <div class="kard-scale-row">
+      <span class="kard-word">SCALE</span>
+      <div class="kard-timeline" id="kard-timeline">
+        <div class="timeline-track">
+          <div class="timeline-line"></div>
+
+          <div class="timeline-tier" data-tier="1">
+            <div class="tier-dot"></div>
+            <div class="tier-drop-line"></div>
+            <div class="tier-box">
+              <div class="tier-label">TIER I</div>
+              <div class="tier-desc">Harness all the energy <strong><br>on a planet.</strong></div>
+            </div>
+          </div>
+
+          <div class="timeline-tier" data-tier="2">
+            <div class="tier-dot"></div>
+            <div class="tier-drop-line"></div>
+            <div class="tier-box">
+              <div class="tier-label">TIER II</div>
+              <div class="tier-desc">Harness all the energy <strong><br>from a star.</strong></div>
+            </div>
+          </div>
+
+          <div class="timeline-tier" data-tier="3">
+            <div class="tier-dot"></div>
+            <div class="tier-drop-line"></div>
+            <div class="tier-box">
+              <div class="tier-label">TIER III</div>
+              <div class="tier-desc">Harness all the energy <strong><br>in the galaxy.</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <script>
@@ -511,14 +659,26 @@
       setTimeout(triggerKardashev, ASPIRE_DONE_MS);
     }
 
-    // ── Kardashev: bam-bam-bam word pop-in ───────
+    // ── Kardashev: bam-bam-bam word pop-in + timeline ─
     function triggerKardashev() {
       if (kardashevFired || !kardSection) return;
       kardashevFired = true;
       kardSection.querySelectorAll('.kard-word').forEach((word, i) => {
         setTimeout(() => word.classList.add('is-visible'), i * 260);
       });
+      // Timeline appears right after SCALE (2×260ms delay + 180ms transition + buffer)
+      const timeline = document.getElementById('kard-timeline');
+      if (timeline) setTimeout(() => timeline.classList.add('is-visible'), 740);
     }
+
+    // ── Tier click: select active tier ───────────
+    document.querySelectorAll('.timeline-tier').forEach(tier => {
+      tier.addEventListener('click', () => {
+        document.querySelectorAll('.timeline-tier').forEach(t => t.classList.remove('is-active'));
+        tier.classList.add('is-active');
+        // Video playback will be wired here later
+      });
+    });
 
     // ── Scroll-to-black + aspire gate ────────────
     function updateFade() {
