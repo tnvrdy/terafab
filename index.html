@@ -576,6 +576,54 @@
       text-align: center;
     }
 
+    /* ── Scale bars ─────────────────────────────── */
+
+    .scale-bar-row {
+      margin-top: 56px;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .scale-bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 14px;
+      padding: 0 12px;
+      overflow: hidden;
+    }
+
+    .scale-bar-clip {
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .scale-bar-img {
+      display: block;
+      width: auto;
+      transform: translateY(100%);
+      transition-property: transform;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .scale-bar-label {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.9rem, 1.6vw, 1.25rem);
+      font-weight: 300;
+      letter-spacing: 0.10em;
+      color: #ffffff;
+      text-align: right;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition-property: transform;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     /* ── Builders section ────────────────────────── */
 
     .section-builders {
@@ -1033,6 +1081,26 @@
           </div>
         </div>
       </div>
+      <div class="scale-bar-row" id="scale-bar-row">
+        <div class="scale-bar-col">
+          <div class="scale-bar-label">TESLA OPTIMUS</div>
+          <div class="scale-bar-clip">
+            <img class="scale-bar-img" src="assets/images/scales/optimus.png" alt="Tesla Optimus">
+          </div>
+        </div>
+        <div class="scale-bar-col">
+          <div class="scale-bar-label">STARSHIP V3</div>
+          <div class="scale-bar-clip">
+            <img class="scale-bar-img" src="assets/images/scales/starship.png" alt="Starship V3">
+          </div>
+        </div>
+        <div class="scale-bar-col">
+          <div class="scale-bar-label">AI SAT MINI</div>
+          <div class="scale-bar-clip">
+            <img class="scale-bar-img" src="assets/images/scales/aisatmini.png" alt="AI Sat Mini">
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1348,22 +1416,14 @@
 
     // ── Shared number animation ───────────────────
     function animateNumber(el, finalText) {
-      const DURATION     = 950;
-      const SETTLE_START = 0.70;
-      const start        = performance.now();
-      function fakeNum() { return (Math.floor(Math.random() * 9e9) + 1e9).toLocaleString(); }
+      const DURATION = 950;
+      const start    = performance.now();
+      el.textContent = finalText;
       function tick(now) {
         const t = Math.min((now - start) / DURATION, 1);
-        if (t >= 1) { el.textContent = finalText; el.style.filter = ''; return; }
-        if (t < SETTLE_START) {
-          el.style.filter = `blur(${(5 * (1 - t / SETTLE_START)).toFixed(1)}px)`;
-          el.textContent = fakeNum();
-        } else {
-          const ct = (t - SETTLE_START) / (1 - SETTLE_START);
-          const b  = 5 * (1 - ct);
-          el.style.filter = b > 0.1 ? `blur(${b.toFixed(1)}px)` : '';
-          el.textContent = finalText;
-        }
+        if (t >= 1) { el.style.filter = ''; return; }
+        const b = 5 * (1 - t);
+        el.style.filter = b > 0.1 ? `blur(${b.toFixed(1)}px)` : '';
         requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
@@ -1374,28 +1434,74 @@
     (function () {
       const scalingHeader = document.querySelector('[data-reveal-scaling]');
       const scalingStats  = document.getElementById('scaling-stats');
+      const scaleImgs     = document.querySelectorAll('.scale-bar-img');
+      const scaleClips    = document.querySelectorAll('.scale-bar-clip');
+      const scaleLabels   = document.querySelectorAll('.scale-bar-label');
       const SCALING_DONE_MS = 27 * CHAR_MS + TRANS_MS;
+      const ANIM_DURATION   = 950;
+      const DISPLAY_H       = 380;
 
       if (scalingHeader) buildChars(scalingHeader);
 
-      let scalingFired = false;
-      if (scalingHeader) {
-        new IntersectionObserver((entries) => {
-          entries.forEach(e => {
-            if (e.isIntersecting && !scalingFired) {
-              scalingFired = true;
-              showChars(scalingHeader);
-              setTimeout(() => {
-                if (!scalingStats) return;
-                scalingStats.classList.add('is-visible');
-                scalingStats.querySelectorAll('.stat-number').forEach(el => {
-                  animateNumber(el, el.dataset.final);
-                });
-              }, SCALING_DONE_MS);
-            }
-          });
-        }, { threshold: 0.3 }).observe(scalingHeader);
+      // Size images + clips proportionally once loaded; AI Sat Mini = DISPLAY_H
+      const imgLoaded = Array.from(scaleImgs).map(img =>
+        img.complete && img.naturalHeight
+          ? Promise.resolve()
+          : new Promise(res => { img.onload = res; img.onerror = res; })
+      );
+      Promise.all(imgLoaded).then(() => {
+        const heights = Array.from(scaleImgs).map(img => img.naturalHeight || 1);
+        const maxH    = Math.max(...heights);
+        const sf      = DISPLAY_H / maxH;
+        scaleImgs.forEach((img, i) => {
+          const h = Math.round(heights[i] * sf);
+          img.style.height = h + 'px';
+          if (scaleClips[i]) scaleClips[i].style.height = h + 'px';
+          if (scaleLabels[i]) scaleLabels[i].style.transform = `translateY(${h}px)`;
+        });
+      });
+
+      // pct = fraction from top where label should rest (1.0 = bottom, 0.4 = 40% from top)
+      const LABEL_PCTS = [1.0, 0.50, 0.535];
+
+      function triggerScaleBars() {
+        const heights = Array.from(scaleImgs).map(img => parseFloat(img.style.height) || 1);
+        const maxH    = Math.max(...heights);
+        scaleImgs.forEach((img, i) => {
+          const h        = parseFloat(img.style.height) || 1;
+          const duration = Math.round((h / maxH) * ANIM_DURATION) + 'ms';
+          img.style.transitionDuration = duration;
+          img.style.transform = 'translateY(0)';
+          if (scaleLabels[i]) {
+            const pct    = LABEL_PCTS[i] ?? 1.0;
+            const finalY = -(1 - pct) * h;
+            scaleLabels[i].style.transitionDuration = duration;
+            scaleLabels[i].style.transform = `translateY(${finalY}px)`;
+          }
+        });
       }
+
+      // Fire when header reaches top ~20% of viewport
+      let scalingFired = false;
+      function checkScaling() {
+        if (scalingFired || !scalingHeader) return;
+        const rect = scalingHeader.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.22) {
+          scalingFired = true;
+          window.removeEventListener('scroll', checkScaling, { passive: true });
+          showChars(scalingHeader);
+          setTimeout(() => {
+            if (!scalingStats) return;
+            scalingStats.classList.add('is-visible');
+            scalingStats.querySelectorAll('.stat-number').forEach(el => {
+              animateNumber(el, el.dataset.final);
+            });
+            triggerScaleBars();
+          }, SCALING_DONE_MS);
+        }
+      }
+      window.addEventListener('scroll', checkScaling, { passive: true });
+      checkScaling();
     })();
 
     // ── Builders section ─────────────────────────
