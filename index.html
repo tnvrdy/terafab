@@ -701,6 +701,17 @@
 
     .section-chip-gallery.is-visible { opacity: 1; }
 
+    .section-chip-gallery::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: linear-gradient(to bottom, transparent, #06060a);
+      pointer-events: none;
+    }
+
     .chip-gallery {
       display: flex;
       justify-content: center;
@@ -778,6 +789,17 @@
       overflow: hidden;
       opacity: 0;
       transition: opacity 1.2s ease;
+    }
+
+    .section-mass-drive::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: linear-gradient(to bottom, transparent, #06060a);
+      pointer-events: none;
     }
 
     .section-mass-drive.is-visible { opacity: 1; }
@@ -895,6 +917,10 @@
 
     .two-stat-number--lg {
       transition: font-size 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .two-stat-year {
+      font-size: 0.75em;
     }
 
     .two-stat-col.is-visible .two-stat-number--lg {
@@ -1178,11 +1204,11 @@
   <!-- ── Two-stat section ─────────────────────────── -->
   <section class="section-two-stats">
     <div class="two-stat-col" id="two-stat-left">
-      <div class="two-stat-number" data-final="0.5 TW/YEAR">—</div>
+      <div class="two-stat-number" data-final="0.5 TW">—</div>
       <div class="two-stat-label">CURRENT U.S. CONSUMPTION</div>
     </div>
     <div class="two-stat-col" id="two-stat-right">
-      <div class="two-stat-number two-stat-number--lg" data-final="1 TW/YEAR">—</div>
+      <div class="two-stat-number two-stat-number--lg" data-final="1 TW">—</div>
       <div class="two-stat-label">TERAFAB OUTPUT</div>
     </div>
   </section>
@@ -1497,12 +1523,11 @@
         });
       }
 
-      // Fire when header reaches top ~20% of viewport
       let scalingFired = false;
       function checkScaling() {
         if (scalingFired || !scalingHeader) return;
         const rect = scalingHeader.getBoundingClientRect();
-        if (rect.top < window.innerHeight * 0.22) {
+        if (rect.top < window.innerHeight * 0.78) {
           scalingFired = true;
           window.removeEventListener('scroll', checkScaling, { passive: true });
           showChars(scalingHeader);
@@ -1611,7 +1636,7 @@
       if (!cols.length) return;
       cols.forEach(col => {
         const numEl = col.querySelector('.two-stat-number');
-        if (numEl) numEl.textContent = numEl.dataset.final;
+        if (numEl) numEl.innerHTML = numEl.dataset.final + '<span class="two-stat-year">/YEAR</span>';
       });
       let fired = false;
       new IntersectionObserver((entries) => {
