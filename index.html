@@ -260,7 +260,7 @@
       z-index: 1;
       display: flex;
       justify-content: center;
-      padding: 180px 24px 100px;
+      padding: 180px 24px 220px;
     }
 
     .reveal-text {
@@ -290,6 +290,52 @@
 
     .char.is-visible {
       opacity: 1;
+    }
+
+    /* ── Aspire section ─────────────────────── */
+
+    .section-aspire {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: flex-start;
+      padding: 40px 24px 48px 10%;
+    }
+
+    .aspire-text {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 300;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.80);
+      text-align: left;
+    }
+
+    /* ── Kardashev section ───────────────────── */
+
+    .section-kardashev {
+      position: relative;
+      z-index: 1;
+      padding: 0 24px 220px 10%;
+    }
+
+    .kard-word {
+      display: block;
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1.0;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+    }
+
+    .kard-word.is-visible {
+      opacity: 1;
+      transform: none;
     }
   </style>
 </head>
@@ -355,6 +401,21 @@
     </div>
   </section>
 
+  <!-- ── Aspire section ────────────────────────── -->
+  <section class="section-aspire">
+    <div class="aspire-text" data-reveal-aspire>
+      <span class="reveal-line">We aspire to be a</span>
+      <span class="reveal-line">galactic civilization.</span>
+    </div>
+  </section>
+
+  <!-- ── Kardashev section ─────────────────────── -->
+  <section class="section-kardashev" data-kardashev>
+    <span class="kard-word">THE</span>
+    <span class="kard-word">KARDASHEV</span>
+    <span class="kard-word">SCALE</span>
+  </section>
+
   <script>
     // ── Splash text: fade in on scroll ────────────
     new IntersectionObserver((entries) => {
@@ -363,20 +424,34 @@
       });
     }, { threshold: 0.15 }).observe(document.querySelector('.splash-text'));
 
-    // ── Reveal text: staggered character reveal on scroll ─
-    (function () {
-      const container = document.querySelector('[data-reveal]');
-      if (!container) return;
+    // ── Timing: slot counts derived from actual text ─
+    // Second text last char: slot 123 ("...stars.")
+    // Aspire last char:      slot 46  ("...civilization.")
+    const CHAR_MS        = 22;
+    const TRANS_MS       = 350;
+    const REVEAL_DONE_MS = 123 * CHAR_MS + TRANS_MS; // ~3056 ms
+    const ASPIRE_DONE_MS =  46 * CHAR_MS + TRANS_MS; // ~1362 ms
 
-      const CHAR_MS  = 22;
+    // ── Shared state ──────────────────────────────
+    let bgFade            = 0;
+    let revealTriggeredAt = null;
+    let aspireFired       = false;
+    let kardashevFired    = false;
+
+    // ── Element refs ──────────────────────────────
+    const revealSection   = document.querySelector('.section-reveal');
+    const revealContainer = document.querySelector('[data-reveal]');
+    const aspireContainer = document.querySelector('[data-reveal-aspire]');
+    const kardSection     = document.querySelector('[data-kardashev]');
+
+    // ── Build char spans with staggered delays ────
+    function buildChars(container) {
       const LINE_GAP = 8;
       let slot = 0;
-
       container.querySelectorAll('.reveal-line').forEach((line, i) => {
         if (i > 0) slot += LINE_GAP;
         const text = line.textContent;
         line.textContent = '';
-
         for (const ch of text) {
           if (ch === ' ') {
             line.appendChild(document.createTextNode(' '));
@@ -391,14 +466,73 @@
           }
         }
       });
+    }
 
+    function showChars(container) {
+      container.querySelectorAll('.char').forEach(c => c.classList.add('is-visible'));
+    }
+
+    // Build both texts' chars on load (delays assigned, not shown yet)
+    if (revealContainer) buildChars(revealContainer);
+    if (aspireContainer) buildChars(aspireContainer);
+
+    // ── Second text: fire on scroll-in ───────────
+    if (revealContainer) {
       new IntersectionObserver((entries) => {
         entries.forEach(e => {
-          if (e.isIntersecting)
-            e.target.querySelectorAll('.char').forEach(c => c.classList.add('is-visible'));
+          if (e.isIntersecting && !revealTriggeredAt) {
+            revealTriggeredAt = Date.now();
+            showChars(revealContainer);
+            // After "stars." finishes, check if aspire can start
+            setTimeout(tryTriggerAspire, REVEAL_DONE_MS);
+          }
         });
-      }, { threshold: 0.2 }).observe(container);
-    })();
+      }, { threshold: 0.2 }).observe(revealContainer);
+    }
+
+    // ── Aspire trigger: all three gates must be true ─
+    // 1) "stars." finished typing
+    // 2) second text is in the top half of the screen
+    // 3) aspire section is entering the viewport
+    function tryTriggerAspire() {
+      if (aspireFired || !revealTriggeredAt || !aspireContainer) return;
+      if (Date.now() < revealTriggeredAt + REVEAL_DONE_MS) return;
+
+      const revealRect = revealSection.getBoundingClientRect();
+      const inTopHalf  = (revealRect.top + revealRect.height / 2) < window.innerHeight / 2;
+      if (!inTopHalf) return;
+
+      const aspireRect   = aspireContainer.getBoundingClientRect();
+      const aspireInView = aspireRect.top < window.innerHeight;
+      if (!aspireInView) return;
+
+      aspireFired = true;
+      showChars(aspireContainer);
+      setTimeout(triggerKardashev, ASPIRE_DONE_MS);
+    }
+
+    // ── Kardashev: bam-bam-bam word pop-in ───────
+    function triggerKardashev() {
+      if (kardashevFired || !kardSection) return;
+      kardashevFired = true;
+      kardSection.querySelectorAll('.kard-word').forEach((word, i) => {
+        setTimeout(() => word.classList.add('is-visible'), i * 260);
+      });
+    }
+
+    // ── Scroll-to-black + aspire gate ────────────
+    function updateFade() {
+      if (!revealSection) return;
+      const rect    = revealSection.getBoundingClientRect();
+      const vh      = window.innerHeight;
+      const H       = revealSection.offsetHeight;
+      const fadeEnd = Math.max(0, vh / 2 - H / 2);
+      bgFade = Math.max(0, Math.min(1, (vh - rect.top) / (vh - fadeEnd)));
+    }
+
+    window.addEventListener('scroll', updateFade,       { passive: true });
+    window.addEventListener('scroll', tryTriggerAspire, { passive: true });
+    updateFade();
 
     // ── Silicon wafer grid background ─────────────
     (function () {
@@ -408,14 +542,14 @@
       const SZ = 15;
       const ZX = 4, ZY = 3;
 
-      const TEAL    = [6, 70, 84];   // deep turquoise — seeded in center zones
-      const PLUM    = [58, 7, 26];   // dark red-plum — seeded in top zones
+      const TEAL    = [6, 70, 84];
+      const PLUM    = [58, 7, 26];
       const PALETTE = [
-        [42, 10, 68],   // deep plum
-        [12, 16, 92],   // dark indigo
-        [58,  6, 44],   // dark magenta
-        [18, 42, 80],   // steel blue
-        [28,  6, 52],   // dark violet
+        [42, 10, 68],
+        [12, 16, 92],
+        [58,  6, 44],
+        [18, 42, 80],
+        [28,  6, 52],
       ];
 
       function lerp(a, b, t) { return a + (b - a) * t; }
@@ -435,7 +569,6 @@
         const cols = Math.ceil(W / SZ) + 1;
         const rows = Math.ceil(H / SZ) + 1;
 
-        // Top row = plum, center row = teal, bottom row = random
         const zones = Array.from({ length: ZY }, (_, ry) =>
           Array.from({ length: ZX }, () =>
             ry === 0 ? PLUM :
@@ -479,7 +612,6 @@
           }
         }
 
-        // Two slow-drifting ambient spotlights — each orbits a different region of the screen
         blobs = [
           { ph: 0,        spx: 0.000130, spy: 0.000190, pulPh: 0,             pulSp: 0.000310, x: 0, y: 0, a: 0 },
           { ph: Math.PI,  spx: 0.000170, spy: 0.000110, pulPh: Math.PI * 0.7, pulSp: 0.000240, x: 0, y: 0, a: 0 },
@@ -489,7 +621,8 @@
       function draw(t) {
         ctx.clearRect(0, 0, W, H);
 
-        // Drift and pulse each blob
+        const fade = 1 - bgFade;
+
         for (const b of blobs) {
           b.x = W * (0.15 + 0.70 * (0.5 + 0.5 * Math.sin(t * b.spx + b.ph)));
           b.y = H * (0.15 + 0.70 * (0.5 + 0.5 * Math.cos(t * b.spy + b.ph * 1.3)));
@@ -503,12 +636,10 @@
                          + 0.03 * Math.sin(t * 0.001 * sq.sp2 + sq.ph2);
           }
 
-          // Mouse glow: soft wide falloff
           const mdx  = sq.x + SZ * 0.5 - mouse.x;
           const mdy  = sq.y + SZ * 0.5 - mouse.y;
           const glow = Math.max(0, 1 - Math.sqrt(mdx*mdx + mdy*mdy) / 400) ** 1.6;
 
-          // Ambient spotlight blobs: large soft radius, very subtle brightness lift
           let blobGlow = 0;
           for (const b of blobs) {
             const bdx = sq.x + SZ * 0.5 - b.x;
@@ -522,10 +653,12 @@
           const rv = (sq.base[0] + (sq.lit[0] - sq.base[0]) * combinedGlow) | 0;
           const gv = (sq.base[1] + (sq.lit[1] - sq.base[1]) * combinedGlow) | 0;
           const bv = (sq.base[2] + (sq.lit[2] - sq.base[2]) * combinedGlow) | 0;
-          const a  = Math.min(0.86, sq.baseAlpha * flick * sq.brightNoise + glow * 0.4 + blobGlow * 0.20);
+          const a  = Math.min(0.86, sq.baseAlpha * flick * sq.brightNoise + glow * 0.4 + blobGlow * 0.20) * fade;
 
-          ctx.fillStyle = `rgba(${rv},${gv},${bv},${a.toFixed(2)})`;
-          ctx.fillRect(sq.x, sq.y, SZ, SZ);
+          if (a > 0.005) {
+            ctx.fillStyle = `rgba(${rv},${gv},${bv},${a.toFixed(2)})`;
+            ctx.fillRect(sq.x, sq.y, SZ, SZ);
+          }
         }
 
         requestAnimationFrame(draw);
