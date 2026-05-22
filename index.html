@@ -499,6 +499,81 @@
       opacity: 1;
       transform: none;
     }
+
+    /* ── Scaling section ─────────────────────────── */
+
+    .section-scaling {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      padding: 80px 6% 220px;
+    }
+
+    /* Shrink-wrap both header and stats to the same width */
+    .scaling-inner {
+      width: fit-content;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scaling-header {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(2rem, 4.2vw, 3.8rem);
+      font-weight: 300;
+      letter-spacing: 0.07em;
+      color: rgba(255, 255, 255, 0.82);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .scaling-stats {
+      margin-top: 48px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .scaling-stats.is-visible { opacity: 1; }
+
+    .stat-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 12px;
+    }
+
+    /* Single-column grid: number sets column width, label fills it */
+    .stat-content {
+      display: grid;
+    }
+
+    .stat-number {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 3.8rem);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: rgba(255, 255, 255, 0.96);
+      white-space: nowrap;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .stat-label {
+      margin-top: 12px;
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.75rem, 1.3vw, 1rem);
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.40);
+      line-height: 1.65;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -629,6 +704,35 @@
       <div class="bullet-item">I. MAXIMIZE UTILIZATION OF THE SUN'S ENERGY</div>
       <div class="bullet-item">II. PRODUCE AI CHIPS AT SCALE</div>
       <div class="bullet-item">III. UNLOCK INTERPLANETARY TRAVEL</div>
+    </div>
+  </section>
+
+  <!-- ── Scaling for massive capacity ─────────── -->
+  <section class="section-scaling">
+    <div class="scaling-inner">
+      <div class="scaling-header" data-reveal-scaling>
+        <span class="reveal-line">SCALING FOR MASSIVE CAPACITY.</span>
+      </div>
+      <div class="scaling-stats" id="scaling-stats">
+        <div class="stat-block">
+          <div class="stat-content">
+            <div class="stat-number" data-final="1 BILLION">—</div>
+            <div class="stat-label">TESLA OPTIMUS ROBOTS<br>TO DO THE WORK</div>
+          </div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-content">
+            <div class="stat-number" data-final="10 MILLION">—</div>
+            <div class="stat-label">TONS OF MASS/YR<br>LAUNCHED INTO ORBIT</div>
+          </div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-content">
+            <div class="stat-number" data-final="1 TW+">—</div>
+            <div class="stat-label">SOLAR POWER NEEDED</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -780,6 +884,61 @@
             }
           });
         }, { threshold: 0.5 }).observe(wtit);
+      }
+    })();
+
+    // ── Scaling section ───────────────────────────
+    // "SCALING FOR MASSIVE CAPACITY" last char at slot 27 → done ≈ 944ms
+    (function () {
+      const scalingHeader = document.querySelector('[data-reveal-scaling]');
+      const scalingStats  = document.getElementById('scaling-stats');
+      const SCALING_DONE_MS = 27 * CHAR_MS + TRANS_MS;
+
+      if (scalingHeader) buildChars(scalingHeader);
+
+      function animateNumber(el, finalText) {
+        const DURATION     = 950;
+        const SETTLE_START = 0.70;
+        const start        = performance.now();
+
+        function fakeNum() {
+          return (Math.floor(Math.random() * 9e9) + 1e9).toLocaleString();
+        }
+
+        function tick(now) {
+          const t = Math.min((now - start) / DURATION, 1);
+          if (t >= 1) { el.textContent = finalText; el.style.filter = ''; return; }
+          if (t < SETTLE_START) {
+            el.style.filter = `blur(${(5 * (1 - t / SETTLE_START)).toFixed(1)}px)`;
+            el.textContent = fakeNum();
+          } else {
+            const ct = (t - SETTLE_START) / (1 - SETTLE_START);
+            const b  = 5 * (1 - ct);
+            el.style.filter = b > 0.1 ? `blur(${b.toFixed(1)}px)` : '';
+            el.textContent = finalText;
+          }
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      let scalingFired = false;
+      if (scalingHeader) {
+        new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting && !scalingFired) {
+              scalingFired = true;
+              showChars(scalingHeader);
+              setTimeout(() => {
+                if (!scalingStats) return;
+                scalingStats.classList.add('is-visible');
+                scalingStats.querySelectorAll('.stat-number').forEach(el => {
+                  animateNumber(el, el.dataset.final);
+                });
+              }, SCALING_DONE_MS);
+            }
+          });
+        }, { threshold: 0.3 }).observe(scalingHeader);
       }
     })();
 
