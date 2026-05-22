@@ -703,6 +703,51 @@
       padding: 0 20px;
     }
 
+    /* ── Mass driver video section ──────────────────── */
+
+    .section-mass-drive {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+
+    .section-mass-drive.is-visible { opacity: 1; }
+
+    .mass-drive-video {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .mass-drive-text {
+      position: absolute;
+      left: 10%;
+      top: 50%;
+      transform: translateY(calc(-50% - 15px));
+    }
+
+    .mass-drive-label {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.88rem, 1.5vw, 1.15rem);
+      font-weight: 300;
+      letter-spacing: 0.14em;
+      color: rgba(255, 255, 255, 0.60);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .mass-drive-heading {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(1.8rem, 3.6vw, 2.7rem);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: rgba(255, 255, 255, 0.88);
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
     /* ── Chips heading section ──────────────────────── */
 
     .section-chips-heading {
@@ -1076,6 +1121,17 @@
     </div>
   </section>
 
+  <!-- ── Mass driver video ─────────────────────────── -->
+  <section class="section-mass-drive" id="section-mass-drive">
+    <video class="mass-drive-video" id="mass-drive-video" muted playsinline loop>
+      <source src="assets/mass-drive.mp4" type="video/mp4">
+    </video>
+    <div class="mass-drive-text">
+      <div class="mass-drive-label">OUR NEXT STEP:</div>
+      <div class="mass-drive-heading">LUNAR MASS DRIVERS</div>
+    </div>
+  </section>
+
   <script>
     // ── Splash text: fade in on scroll ────────────
     new IntersectionObserver((entries) => {
@@ -1312,6 +1368,21 @@
       new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) el.classList.add('is-visible'); });
       }, { threshold: 0.15 }).observe(el);
+    })();
+
+    // ── Mass driver video ────────────────────────
+    (function () {
+      const section = document.getElementById('section-mass-drive');
+      const video   = document.getElementById('mass-drive-video');
+      if (!section || !video) return;
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            section.classList.add('is-visible');
+            video.play();
+          }
+        });
+      }, { threshold: 0.15 }).observe(section);
     })();
 
     // ── Chip gallery ─────────────────────────────
