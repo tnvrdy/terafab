@@ -759,12 +759,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transform: translateX(-100%);
-      transition: transform 0.40s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      transition: opacity 0.35s ease;
     }
 
     .chip-card:hover .chip-hover-overlay {
-      transform: translateX(0);
+      opacity: 1;
     }
 
     .chip-back-text {
@@ -844,6 +844,58 @@
     .space-compute-text.is-visible {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    .space-compute-groups {
+      position: absolute;
+      bottom: 9%;
+      left: 10%;
+      display: flex;
+      gap: 60px;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+    }
+
+    .space-compute-groups.is-visible { opacity: 1; }
+
+    .compute-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .compute-group-title {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      white-space: nowrap;
+    }
+
+    .compute-group-rule {
+      margin-top: 14px;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+    }
+
+    .compute-group-list {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .compute-group-item {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.78rem, 1.2vw, 0.95rem);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.50);
+      line-height: 2.1;
+      white-space: nowrap;
     }
 
     .section-mass-drive {
@@ -1328,7 +1380,32 @@
 
   <!-- ── Space compute ────────────────────────────── -->
   <section class="section-space-compute" id="section-space-compute">
-    <p class="space-compute-text" id="space-compute-text">SPACE: THE ONLY TRULY SCALABLE SOLUTION FOR THE FUTURE OF AI</p>
+    <p class="space-compute-text" id="space-compute-text">Space is the only truly scalable solution for the future of AI.</p>
+    <div class="space-compute-groups" id="space-compute-groups">
+      <div class="compute-group">
+        <div class="compute-group-title">Costs of compute on earth:</div>
+        <div class="compute-group-rule"></div>
+        <div class="compute-group-list">
+          <div class="compute-group-item">Power build</div>
+          <div class="compute-group-item">Permitting</div>
+          <div class="compute-group-item">Operating costs</div>
+          <div class="compute-group-item">Land</div>
+          <div class="compute-group-item">Energy costs</div>
+          <div class="compute-group-item">Infrastructure</div>
+          <div class="compute-group-item">Cooling</div>
+        </div>
+      </div>
+      <div class="compute-group">
+        <div class="compute-group-title">Costs of compute in space:</div>
+        <div class="compute-group-rule"></div>
+        <div class="compute-group-list">
+          <div class="compute-group-item">Launch cost</div>
+          <div class="compute-group-item">Operating costs</div>
+          <div class="compute-group-item">Satellite build</div>
+          <div class="compute-group-item">Infrastructure</div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ── Mass driver video ─────────────────────────── -->
@@ -1659,13 +1736,16 @@
       }, { threshold: 0.15 }).observe(el);
     })();
 
-    // ── Space compute text ───────────────────────
+    // ── Space compute text + groups ──────────────
     (function () {
-      const text = document.getElementById('space-compute-text');
-      if (!text) return;
-      new IntersectionObserver((entries) => {
+      const text   = document.getElementById('space-compute-text');
+      const groups = document.getElementById('space-compute-groups');
+      if (text) new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) text.classList.add('is-visible'); });
       }, { threshold: 0.2 }).observe(text);
+      if (groups) new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) groups.classList.add('is-visible'); });
+      }, { threshold: 0.2 }).observe(groups);
     })();
 
     // ── Mass driver video ────────────────────────
