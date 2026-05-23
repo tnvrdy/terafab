@@ -781,6 +781,71 @@
 
     /* ── Mass driver video section ──────────────────── */
 
+    .section-space-compute {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 160vh;
+      overflow: hidden;
+      background: url('assets/images/sat-sunny.jpg') center center / cover no-repeat;
+    }
+
+    .section-space-compute::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: linear-gradient(to bottom, #06060a, transparent);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .section-space-compute::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: linear-gradient(to bottom, transparent, #06060a);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .space-compute-text {
+      position: absolute;
+      top: 14%;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      width: 80%;
+      text-align: center;
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(1.6rem, 3.0vw, 2.4rem);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+      background: linear-gradient(to right,
+        rgba(255,255,255,0.18) 0%,
+        rgba(255,255,255,0.75) 35%,
+        rgba(255,255,255,1.00) 57%,
+        rgba(255,255,255,0.75) 74%,
+        rgba(255,255,255,0.18) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0;
+      transition: opacity 1.3s ease, transform 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 2;
+    }
+
+    .space-compute-text.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     .section-mass-drive {
       position: relative;
       z-index: 1;
@@ -1261,6 +1326,11 @@
     </div>
   </section>
 
+  <!-- ── Space compute ────────────────────────────── -->
+  <section class="section-space-compute" id="section-space-compute">
+    <p class="space-compute-text" id="space-compute-text">SPACE: THE ONLY TRULY SCALABLE SOLUTION FOR THE FUTURE OF AI</p>
+  </section>
+
   <!-- ── Mass driver video ─────────────────────────── -->
   <section class="section-mass-drive" id="section-mass-drive">
     <video class="mass-drive-video" id="mass-drive-video" muted playsinline loop>
@@ -1587,6 +1657,15 @@
       new IntersectionObserver((entries) => {
         entries.forEach(e => { if (e.isIntersecting) el.classList.add('is-visible'); });
       }, { threshold: 0.15 }).observe(el);
+    })();
+
+    // ── Space compute text ───────────────────────
+    (function () {
+      const text = document.getElementById('space-compute-text');
+      if (!text) return;
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) text.classList.add('is-visible'); });
+      }, { threshold: 0.2 }).observe(text);
     })();
 
     // ── Mass driver video ────────────────────────
