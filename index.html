@@ -1162,7 +1162,8 @@
 
   <!-- ── Aspire + Kardashev share a video background ── -->
   <div class="kard-universe">
-    <video class="kard-bg-video" id="kard-bg-video" muted playsinline></video>
+    <video class="kard-bg-video" id="kard-bg-video-a" muted playsinline></video>
+    <video class="kard-bg-video" id="kard-bg-video-b" muted playsinline></video>
 
     <section class="section-aspire">
       <div class="aspire-text" data-reveal-aspire>
@@ -1581,16 +1582,22 @@
       }, 740);
     }
 
-    // ── Kardashev video state machine ────────────
+    // ── Kardashev video state machine (dual-buffer) ──
     (function () {
-      const video = document.getElementById('kard-bg-video');
-      const tiers = document.querySelectorAll('.timeline-tier');
-      if (!video || !tiers.length) return;
+      const videoA = document.getElementById('kard-bg-video-a');
+      const videoB = document.getElementById('kard-bg-video-b');
+      const tiers  = document.querySelectorAll('.timeline-tier');
+      if (!videoA || !videoB || !tiers.length) return;
 
-      let completedTier = 1;
-      let transitToTier = null;
-      let queuedTier    = null;
-      let isPlaying     = false;
+      // active = currently visible, standby = loading next
+      let active  = videoA;
+      let standby = videoB;
+
+      let completedTier  = 1;
+      let transitToTier  = null;
+      let queuedTier     = null;
+      let isPlaying      = false;
+      let pendingHandler = null;
 
       function setActive(n) {
         tiers.forEach(t => t.classList.remove('is-active'));
@@ -1598,15 +1605,7 @@
         if (el) el.classList.add('is-active');
       }
 
-      function playTransition(from, to) {
-        video.src = `assets/kardashev-videos/t${from}-t${to}.mp4`;
-        video.load();
-        video.play();
-        video.classList.add('is-active');
-        isPlaying = true;
-      }
-
-      video.addEventListener('ended', () => {
+      function onVideoEnd() {
         completedTier = transitToTier;
         transitToTier = null;
         isPlaying = false;
@@ -1617,11 +1616,36 @@
         } else {
           queuedTier = null;
         }
-      });
+      }
+
+      function playTransition(from, to) {
+        isPlaying = true;
+        // Cancel any in-flight standby load
+        if (pendingHandler) {
+          standby.removeEventListener('canplay', pendingHandler);
+          pendingHandler = null;
+        }
+        standby.src = `assets/kardashev-videos/t${from}-t${to}.mp4`;
+        // Seek past black intro once metadata is known
+        standby.addEventListener('loadedmetadata', () => {
+          standby.currentTime = 1.0;
+        }, { once: true });
+        // Crossfade when standby is ready
+        pendingHandler = () => {
+          pendingHandler = null;
+          standby.play().catch(() => {});
+          standby.style.opacity = '1';
+          active.style.opacity  = '0';
+          active.pause();
+          standby.addEventListener('ended', onVideoEnd, { once: true });
+          [active, standby] = [standby, active];
+        };
+        standby.addEventListener('canplay', pendingHandler, { once: true });
+      }
 
       tiers.forEach(tier => {
         tier.addEventListener('click', () => {
-          const clicked = parseInt(tier.dataset.tier);
+          const clicked     = parseInt(tier.dataset.tier);
           const destination = isPlaying ? (queuedTier ?? transitToTier) : completedTier;
           if (clicked === destination) return;
           setActive(clicked);
