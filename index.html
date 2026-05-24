@@ -1556,7 +1556,12 @@
       });
       // Timeline appears right after SCALE (2×260ms delay + 180ms transition + buffer)
       const timeline = document.getElementById('kard-timeline');
-      if (timeline) setTimeout(() => timeline.classList.add('is-visible'), 740);
+      if (timeline) setTimeout(() => {
+        timeline.classList.add('is-visible');
+        // Activate T1 on load
+        const t1 = document.querySelector('.timeline-tier[data-tier="1"]');
+        if (t1) t1.classList.add('is-active');
+      }, 740);
     }
 
     // ── Tier click: select active tier ───────────
@@ -1564,7 +1569,6 @@
       tier.addEventListener('click', () => {
         document.querySelectorAll('.timeline-tier').forEach(t => t.classList.remove('is-active'));
         tier.classList.add('is-active');
-        // Video playback will be wired here later
       });
     });
 
