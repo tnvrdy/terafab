@@ -262,6 +262,12 @@
       display: flex;
       justify-content: center;
       padding: 180px 24px 220px;
+      background: linear-gradient(to bottom,
+        transparent 0%,
+        #06060a 180px,
+        #06060a calc(100% - 200px),
+        transparent 100%
+      );
     }
 
     .reveal-text {
@@ -480,6 +486,7 @@
       display: flex;
       justify-content: center;
       padding: 120px 24px 160px;
+      background: #06060a;
     }
 
     .wtit-text {
@@ -497,6 +504,7 @@
       position: relative;
       z-index: 1;
       padding: 40px 24px 220px 10%;
+      background: #06060a;
     }
 
     .bullets-container {
@@ -528,6 +536,7 @@
       display: flex;
       justify-content: center;
       padding: 80px 6% 220px;
+      background: #06060a;
     }
 
     /* Shrink-wrap both header and stats to the same width */
@@ -604,22 +613,9 @@
       align-items: flex-end;
       justify-content: space-between;
       position: relative;
-      isolation: isolate;
     }
 
-    .scale-bar-row::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      margin: 0 -20%;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.92);
-      filter: blur(90px);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .scale-bar-col {
+.scale-bar-col {
       flex: 1;
       display: flex;
       flex-direction: row;
