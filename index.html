@@ -317,7 +317,28 @@
     .section-kardashev {
       position: relative;
       z-index: 1;
-      padding: 0 24px 220px 10%;
+      padding: 100px 24px 220px 10%;
+      min-height: 100vh;
+      background: #06060a;
+    }
+
+    .kard-bg-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    .kard-bg-video.is-active { opacity: 1; }
+
+    .kard-content {
+      position: relative;
+      z-index: 1;
     }
 
     .kard-word {
@@ -1155,38 +1176,41 @@
 
   <!-- ── Kardashev section ─────────────────────── -->
   <section class="section-kardashev" data-kardashev>
-    <span class="kard-word">THE</span>
-    <span class="kard-word">KARDASHEV</span>
-    <div class="kard-scale-row">
-      <span class="kard-word">SCALE</span>
-      <div class="kard-timeline" id="kard-timeline">
-        <div class="timeline-track">
-          <div class="timeline-line"></div>
+    <video class="kard-bg-video" id="kard-bg-video" muted playsinline></video>
+    <div class="kard-content">
+      <span class="kard-word">THE</span>
+      <span class="kard-word">KARDASHEV</span>
+      <div class="kard-scale-row">
+        <span class="kard-word">SCALE</span>
+        <div class="kard-timeline" id="kard-timeline">
+          <div class="timeline-track">
+            <div class="timeline-line"></div>
 
-          <div class="timeline-tier" data-tier="1">
-            <div class="tier-dot"></div>
-            <div class="tier-drop-line"></div>
-            <div class="tier-box">
-              <div class="tier-label">TYPE I</div>
-              <div class="tier-desc">Harness all the energy <strong><br>on a planet.</strong></div>
+            <div class="timeline-tier" data-tier="1">
+              <div class="tier-dot"></div>
+              <div class="tier-drop-line"></div>
+              <div class="tier-box">
+                <div class="tier-label">TYPE I</div>
+                <div class="tier-desc">Harness all the energy <strong><br>on a planet.</strong></div>
+              </div>
             </div>
-          </div>
 
-          <div class="timeline-tier" data-tier="2">
-            <div class="tier-dot"></div>
-            <div class="tier-drop-line"></div>
-            <div class="tier-box">
-              <div class="tier-label">TYPE II</div>
-              <div class="tier-desc">Harness all the energy <strong><br>from a star.</strong></div>
+            <div class="timeline-tier" data-tier="2">
+              <div class="tier-dot"></div>
+              <div class="tier-drop-line"></div>
+              <div class="tier-box">
+                <div class="tier-label">TYPE II</div>
+                <div class="tier-desc">Harness all the energy <strong><br>from a star.</strong></div>
+              </div>
             </div>
-          </div>
 
-          <div class="timeline-tier" data-tier="3">
-            <div class="tier-dot"></div>
-            <div class="tier-drop-line"></div>
-            <div class="tier-box">
-              <div class="tier-label">TYPE III</div>
-              <div class="tier-desc">Harness all the energy <strong><br>in the galaxy.</strong></div>
+            <div class="timeline-tier" data-tier="3">
+              <div class="tier-dot"></div>
+              <div class="tier-drop-line"></div>
+              <div class="tier-box">
+                <div class="tier-label">TYPE III</div>
+                <div class="tier-desc">Harness all the energy <strong><br>in the galaxy.</strong></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1558,19 +1582,65 @@
       const timeline = document.getElementById('kard-timeline');
       if (timeline) setTimeout(() => {
         timeline.classList.add('is-visible');
-        // Activate T1 on load
-        const t1 = document.querySelector('.timeline-tier[data-tier="1"]');
-        if (t1) t1.classList.add('is-active');
+        if (window._kardInit) window._kardInit();
       }, 740);
     }
 
-    // ── Tier click: select active tier ───────────
-    document.querySelectorAll('.timeline-tier').forEach(tier => {
-      tier.addEventListener('click', () => {
-        document.querySelectorAll('.timeline-tier').forEach(t => t.classList.remove('is-active'));
-        tier.classList.add('is-active');
+    // ── Kardashev video state machine ────────────
+    (function () {
+      const video = document.getElementById('kard-bg-video');
+      const tiers = document.querySelectorAll('.timeline-tier');
+      if (!video || !tiers.length) return;
+
+      let completedTier = 1;
+      let transitToTier = null;
+      let queuedTier    = null;
+      let isPlaying     = false;
+
+      function setActive(n) {
+        tiers.forEach(t => t.classList.remove('is-active'));
+        const el = document.querySelector(`.timeline-tier[data-tier="${n}"]`);
+        if (el) el.classList.add('is-active');
+      }
+
+      function playTransition(from, to) {
+        video.src = `assets/kardashev-videos/t${from}-t${to}.mp4`;
+        video.load();
+        video.play();
+        video.classList.add('is-active');
+        isPlaying = true;
+      }
+
+      video.addEventListener('ended', () => {
+        completedTier = transitToTier;
+        transitToTier = null;
+        isPlaying = false;
+        if (queuedTier !== null && queuedTier !== completedTier) {
+          transitToTier = queuedTier;
+          queuedTier = null;
+          playTransition(completedTier, transitToTier);
+        } else {
+          queuedTier = null;
+        }
       });
-    });
+
+      tiers.forEach(tier => {
+        tier.addEventListener('click', () => {
+          const clicked = parseInt(tier.dataset.tier);
+          const destination = isPlaying ? (queuedTier ?? transitToTier) : completedTier;
+          if (clicked === destination) return;
+          setActive(clicked);
+          if (!isPlaying) {
+            transitToTier = clicked;
+            playTransition(completedTier, clicked);
+          } else {
+            queuedTier = clicked;
+          }
+        });
+      });
+
+      window._kardInit = function () { completedTier = 1; setActive(1); };
+    })();
 
     // ── WTIT → Harnessing → Bullets chained reveal ─
     // WTIT last char at slot 17  → done ≈ 724ms
