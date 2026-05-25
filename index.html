@@ -500,9 +500,77 @@
 
     .section-harnessing-block {
       position: relative;
-      z-index: 1;
-      padding: 40px 24px 220px 10%;
+      z-index: 10;
+    }
+
+    .harn-scroll-track {
+      height: 300vh;
+      position: relative;
+    }
+
+    .harn-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
       background: #06060a;
+    }
+
+    .harn-sun-img {
+      position: absolute;
+      top: 0;
+      left: -30vw;
+      width: 200vw;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+      will-change: transform;
+    }
+
+    .you-are-here {
+      position: absolute;
+      z-index: 1;
+      top: 58%;
+      left: 24%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .yah-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.75);
+      flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(255,255,255,0.5);
+    }
+
+    .yah-line {
+      width: 36px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.35);
+      flex-shrink: 0;
+    }
+
+    .yah-label {
+      font-family: 'Mohave', sans-serif;
+      font-size: clamp(0.75rem, 1.1vw, 1rem);
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+      white-space: nowrap;
+    }
+
+    .harn-content {
+      position: absolute;
+      top: 50%;
+      left: 8%;
+      right: 55%;
+      transform: translateY(-50%);
+      z-index: 2;
     }
 
     .bullets-container {
@@ -1220,14 +1288,26 @@
 
   <!-- ── "Harnessing the power of the sun." + bullets ─ -->
   <section class="section-harnessing-block">
-    <div class="aspire-text" data-reveal-harnessing>
-      <span class="reveal-line">HARNESSING THE</span>
-      <span class="reveal-line bold">POWER OF THE SUN.</span>
-    </div>
-    <div class="bullets-container">
-      <div class="bullet-item">I. MAXIMIZE UTILIZATION OF THE SUN'S ENERGY</div>
-      <div class="bullet-item">II. PRODUCE AI CHIPS AT SCALE</div>
-      <div class="bullet-item">III. UNLOCK INTERPLANETARY TRAVEL</div>
+    <div class="harn-scroll-track">
+      <div class="harn-sticky">
+        <img class="harn-sun-img" src="assets/images/harn-sun.jpg" alt="" draggable="false">
+        <div class="you-are-here">
+          <div class="yah-dot"></div>
+          <div class="yah-line"></div>
+          <span class="yah-label">You are here</span>
+        </div>
+        <div class="harn-content">
+          <div class="aspire-text" data-reveal-harnessing>
+            <span class="reveal-line">HARNESSING THE</span>
+            <span class="reveal-line bold">POWER OF THE SUN.</span>
+          </div>
+          <div class="bullets-container">
+            <div class="bullet-item">I. MAXIMIZE UTILIZATION OF THE SUN'S ENERGY</div>
+            <div class="bullet-item">II. PRODUCE AI CHIPS AT SCALE</div>
+            <div class="bullet-item">III. UNLOCK INTERPLANETARY TRAVEL</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1586,14 +1666,14 @@
       if (!video || !tiers.length) return;
 
       // Segment boundaries within kardashev-all.mp4
-      // Order: t1-t2, t1-t3, t2-t1, t2-t3, t3-t1, t3-t2
+      // Order: t1-t2, t2-t3, t3-t2, t2-t1, t1-t3, t3-t1
       const SEGS = {
         '1-2': { start:  0.000, end:  6.269 },
-        '1-3': { start:  6.269, end: 12.566 },
-        '2-1': { start: 12.566, end: 19.415 },
-        '2-3': { start: 19.415, end: 25.615 },
-        '3-1': { start: 25.615, end: 33.371 },
-        '3-2': { start: 33.371, end: 39.733 },
+        '2-3': { start:  6.269, end: 12.469 },
+        '3-2': { start: 12.469, end: 18.831 },
+        '2-1': { start: 18.831, end: 25.681 },
+        '1-3': { start: 25.681, end: 31.977 },
+        '3-1': { start: 31.977, end: 39.733 },
       };
       const SKIP = 0.5; // skip past any black intro frames
 
@@ -1669,6 +1749,10 @@
         completedTier = 1;
         setActive(1);
         video.style.opacity = '0';
+        video.currentTime = SEGS['1-2'].start + SKIP;
+        video.addEventListener('seeked', function () {
+          video.style.opacity = '1';
+        }, { once: true });
       };
     })();
 
@@ -1705,6 +1789,32 @@
           });
         }, { threshold: 0.5 }).observe(wtit);
       }
+    })();
+
+    // ── Harnessing sun scroll parallax ──
+    (function () {
+      const track = document.querySelector('.harn-scroll-track');
+      const img   = document.querySelector('.harn-sun-img');
+      if (!track || !img) return;
+
+      let rafPending = false;
+      function update() {
+        const rect        = track.getBoundingClientRect();
+        const scrollRange = track.offsetHeight - window.innerHeight;
+        if (scrollRange <= 0) return;
+        const progress = Math.max(0, Math.min(1, -rect.top / scrollRange));
+        const travel   = Math.max(0, img.offsetHeight - window.innerHeight);
+        img.style.transform = `translateY(${-progress * travel}px)`;
+      }
+      function scheduleUpdate() {
+        if (!rafPending) {
+          rafPending = true;
+          requestAnimationFrame(() => { rafPending = false; update(); });
+        }
+      }
+      window.addEventListener('scroll', scheduleUpdate, { passive: true });
+      // Run after image loads so offsetHeight is available
+      if (img.complete) { update(); } else { img.addEventListener('load', update); }
     })();
 
     // ── Shared number animation ───────────────────
