@@ -519,7 +519,7 @@
     .harn-sun-img {
       position: absolute;
       top: 0;
-      left: -30vw;
+      left: calc(-30vw + 50px);
       width: 200vw;
       z-index: 0;
       pointer-events: none;
@@ -530,21 +530,13 @@
     .you-are-here {
       position: absolute;
       z-index: 1;
-      top: 58%;
-      left: 24%;
+      top: 50%;
+      left: calc(24% + 50px);
       display: flex;
       align-items: center;
       gap: 10px;
+      padding-left: 15px;
       pointer-events: none;
-    }
-
-    .yah-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.75);
-      flex-shrink: 0;
-      box-shadow: 0 0 6px rgba(255,255,255,0.5);
     }
 
     .yah-line {
@@ -1294,7 +1286,6 @@
       <div class="harn-sticky">
         <img class="harn-sun-img" src="assets/images/harn-sun.jpg" alt="" draggable="false">
         <div class="you-are-here">
-          <div class="yah-dot"></div>
           <div class="yah-line"></div>
           <span class="yah-label">You are here</span>
         </div>
@@ -1799,14 +1790,19 @@
       const img   = document.querySelector('.harn-sun-img');
       if (!track || !img) return;
 
+      const yah = document.querySelector('.you-are-here');
       let rafPending = false;
       function update() {
         const rect        = track.getBoundingClientRect();
         const scrollRange = track.offsetHeight - window.innerHeight;
         if (scrollRange <= 0) return;
-        const progress = Math.max(0, Math.min(1, -rect.top / scrollRange));
-        const travel   = Math.max(0, img.offsetHeight - window.innerHeight);
-        img.style.transform = `translateY(${-progress * travel}px)`;
+        const progress  = Math.max(0, Math.min(1, -rect.top / scrollRange));
+        const travel    = Math.max(0, img.offsetHeight - window.innerHeight);
+        const imgOffset = -progress * travel;
+        img.style.transform = `translateY(${imgOffset}px)`;
+        if (yah && img.offsetHeight) {
+          yah.style.top = (imgOffset + img.offsetHeight / 2 + 4) + 'px';
+        }
       }
       function scheduleUpdate() {
         if (!rafPending) {
