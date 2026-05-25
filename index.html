@@ -483,7 +483,7 @@
       z-index: 1;
       display: flex;
       justify-content: center;
-      padding: 120px 24px 160px;
+      padding: 120px 24px 60px;
       background: #06060a;
     }
 
@@ -717,7 +717,9 @@
       text-align: right;
       text-transform: uppercase;
       white-space: nowrap;
-      transition-property: transform;
+      opacity: 0;
+      transform: translateY(400px);
+      transition-property: transform, opacity;
       transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -1868,19 +1870,32 @@
       const LABEL_PCTS = [1.0, 0.50, 0.535];
 
       function triggerScaleBars() {
-        const heights = Array.from(scaleImgs).map(img => parseFloat(img.style.height) || 1);
-        const maxH    = Math.max(...heights);
-        scaleImgs.forEach((img, i) => {
-          const h        = parseFloat(img.style.height) || 1;
-          const duration = Math.round((h / maxH) * ANIM_DURATION) + 'ms';
-          img.style.transitionDuration = duration;
-          img.style.transform = 'translateY(0)';
-          if (scaleLabels[i]) {
-            const pct    = LABEL_PCTS[i] ?? 1.0;
-            const finalY = -(1 - pct) * h;
-            scaleLabels[i].style.transitionDuration = duration;
-            scaleLabels[i].style.transform = `translateY(${finalY}px)`;
-          }
+        Promise.all(imgLoaded).then(() => {
+          const heights = Array.from(scaleImgs).map(img => parseFloat(img.style.height) || 1);
+          const maxH    = Math.max(...heights);
+          // Snap labels to hidden start (no transition) so the animation always begins from off-screen
+          scaleImgs.forEach((img, i) => {
+            img.style.transitionDuration = '0ms';
+            if (scaleLabels[i]) {
+              scaleLabels[i].style.transitionDuration = '0ms';
+              scaleLabels[i].style.opacity = '0';
+              scaleLabels[i].style.transform = `translateY(${heights[i] || 1}px)`;
+            }
+          });
+          void scaleImgs[0]?.offsetHeight; // force reflow so 0ms state commits
+          scaleImgs.forEach((img, i) => {
+            const h        = heights[i] || 1;
+            const duration = Math.round((h / maxH) * ANIM_DURATION) + 'ms';
+            img.style.transitionDuration = duration;
+            img.style.transform = 'translateY(0)';
+            if (scaleLabels[i]) {
+              const pct    = LABEL_PCTS[i] ?? 1.0;
+              const finalY = -(1 - pct) * h;
+              scaleLabels[i].style.transitionDuration = duration;
+              scaleLabels[i].style.opacity = '1';
+              scaleLabels[i].style.transform = `translateY(${finalY}px)`;
+            }
+          });
         });
       }
 
