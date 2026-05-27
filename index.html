@@ -89,11 +89,69 @@
       z-index: 1;
       display: flex;
       flex-direction: column;
+      height: 100vh;
+      user-select: none;
+      margin-top: -40px;
+    }
+
+    .scroll-caret {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      width: 13px;
+      height: 13px;
+      border-right: 1px solid rgba(255, 255, 255, 0.28);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+      opacity: 0;
+      animation: caretFadeIn 1s ease 10s forwards, caretBounce 2s ease-in-out 10s infinite;
+      z-index: 2;
+    }
+
+    @keyframes caretFadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes caretBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0)   rotate(45deg); }
+      50%       { transform: translateX(-50%) translateY(6px) rotate(45deg); }
+    }
+
+    .hero-video-top {
+      position: relative;
+      height: 50vh;
+      overflow: hidden;
+      background: #06060a;
+      flex-shrink: 0;
+    }
+
+    #hero-bg-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center bottom;
+      pointer-events: none;
+    }
+
+    .hero-video-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65%;
+      background: linear-gradient(to bottom, transparent, #06060a);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-content-bottom {
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      flex: 1;
       padding: 0 24px;
-      user-select: none;
     }
 
     .wordmark {
@@ -119,7 +177,7 @@
     }
 
     .v-rule {
-      margin: 42px 0 18px;
+      margin: 36px 0 18px;
       width: 1px;
       height: 52px;
       background: linear-gradient(to bottom,
@@ -135,7 +193,7 @@
       align-items: center;
       gap: 30px;
       margin-top: 40px;
-      margin-left: 13px;
+      margin-left: 16px;
     }
 
     .logo-link {
@@ -898,8 +956,8 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 40%;
-      background: linear-gradient(to bottom, transparent 0%, rgba(6,6,10,0.75) 40%, #06060a 75%, #06060a 100%);
+      height: 55%;
+      background: linear-gradient(to bottom, transparent 0%, rgba(6,6,10,0.5) 30%, rgba(6,6,10,0.85) 55%, #06060a 80%, #06060a 100%);
       pointer-events: none;
       z-index: 1;
     }
@@ -1177,7 +1235,6 @@
 
   <!-- ── Scene ──────────────────────────────────── -->
   <div class="scene">
-    <canvas id="bg-canvas"></canvas>
     <div class="scene-grain"></div>
     <div class="scene-vignette"></div>
   </div>
@@ -1185,36 +1242,47 @@
   <!-- ── Hero ───────────────────────────────────── -->
   <section class="hero">
 
-    <div class="wordmark appear d1">
-      <img src="assets/images/terafablogo.svg" alt="TERAFAB">
+    <div class="hero-video-top">
+      <video id="hero-bg-video" src="assets/mass-drive.mp4" muted playsinline></video>
+      <div class="hero-video-fade"></div>
     </div>
 
-    <div class="logos appear d2">
-      <a href="https://www.tesla.com/careers" target="_blank" class="logo-link logo-tesla">
-        <img src="assets/images/teslalogo.svg" alt="Tesla">
-      </a>
-      <div class="logo-sep"></div>
-      <a href="https://x.ai/careers" target="_blank" class="logo-link logo-xai">
-        <img src="assets/images/xailogo.svg" alt="xAI">
-      </a>
-      <div class="logo-sep"></div>
-      <a href="https://www.spacex.com/careers" target="_blank" class="logo-link logo-spacex">
-        <img src="assets/images/spacexlogo.svg" alt="SpaceX">
-      </a>
+    <div class="hero-content-bottom">
+
+      <div class="wordmark appear d1">
+        <img src="assets/images/terafablogo.svg" alt="TERAFAB">
+      </div>
+
+      <div class="logos appear d2">
+        <a href="https://www.tesla.com/careers" target="_blank" class="logo-link logo-tesla">
+          <img src="assets/images/teslalogo.svg" alt="Tesla">
+        </a>
+        <div class="logo-sep"></div>
+        <a href="https://x.ai/careers" target="_blank" class="logo-link logo-xai">
+          <img src="assets/images/xailogo.svg" alt="xAI">
+        </a>
+        <div class="logo-sep"></div>
+        <a href="https://www.spacex.com/careers" target="_blank" class="logo-link logo-spacex">
+          <img src="assets/images/spacexlogo.svg" alt="SpaceX">
+        </a>
+      </div>
+
+      <div class="v-rule appear d3"></div>
+
+      <div class="footer-subtitle appear d4">Join Us</div>
+
+      <div class="buttons appear d5">
+        <a class="btn btn-ghost" target="_blank" href="https://x.com/i/broadcasts/1yKAPMzlvgWxb">
+          Watch Our Launch
+        </a>
+        <a class="btn btn-solid" target="_blank" href="mailto:jobs@terafab.ai?subject=Join%20Terafab...">
+          Share Your Resume
+        </a>
+      </div>
+
     </div>
 
-    <div class="v-rule appear d3"></div>
-
-    <div class="footer-subtitle appear d4">Join Us</div>
-
-    <div class="buttons appear d5">
-      <a class="btn btn-ghost" target="_blank" href="https://x.com/i/broadcasts/1yKAPMzlvgWxb">
-        Watch Our Launch
-      </a>
-      <a class="btn btn-solid" target="_blank" href="mailto:jobs@terafab.ai?subject=Join%20Terafab...">
-        Share Your Resume
-      </a>
-    </div>
+    <div class="scroll-caret"></div>
 
   </section>
 
@@ -1299,11 +1367,8 @@
   <section class="section-harnessing-block">
     <div class="harn-scroll-track">
       <div class="harn-sticky">
-        <video class="harn-sun-img" src="assets/harness-sun.mp4" autoplay muted playsinline loop></video>
-        <div class="you-are-here">
-          <div class="yah-line"></div>
-          <span class="yah-label">You are here</span>
-        </div>
+        <video class="harn-sun-img" src="assets/harness-sun-4k-loop.mp4" autoplay muted playsinline loop></video>
+
         <div class="harn-content">
           <div class="aspire-text" data-reveal-harnessing>
             <span class="reveal-line">HARNESSING THE</span>
@@ -1486,7 +1551,7 @@
   <!-- ── Space compute ────────────────────────────── -->
   <section class="section-space-compute" id="section-space-compute">
     <video class="space-compute-bg-video" autoplay muted playsinline loop>
-      <source src="assets/satellite-video.mp4" type="video/mp4">
+      <source src="assets/satellite-video-loop.mp4" type="video/mp4">
     </video>
     <p class="space-compute-text" id="space-compute-text">Space is the only truly scalable solution for the future of AI.</p>
     <div class="space-compute-groups" id="space-compute-groups">
@@ -1808,7 +1873,6 @@
       const img   = document.querySelector('.harn-sun-img');
       if (!track || !img) return;
 
-      const yah = document.querySelector('.you-are-here');
       let rafPending = false;
       function update() {
         const rect        = track.getBoundingClientRect();
@@ -1818,9 +1882,6 @@
         const travel    = Math.max(0, img.offsetHeight - window.innerHeight);
         const imgOffset = -progress * travel;
         img.style.transform = `translateY(${imgOffset}px)`;
-        if (yah && img.offsetHeight) {
-          yah.style.top = (imgOffset + img.offsetHeight / 2 + 4) + 'px';
-        }
       }
       function scheduleUpdate() {
         if (!rafPending) {
@@ -1829,7 +1890,6 @@
         }
       }
       window.addEventListener('scroll', scheduleUpdate, { passive: true });
-      // Run after video metadata loads so offsetHeight is available
       if (img.readyState >= 1) { update(); } else { img.addEventListener('loadedmetadata', update); }
     })();
 
@@ -1996,11 +2056,16 @@
       const section = document.getElementById('section-mass-drive');
       const video   = document.getElementById('mass-drive-video');
       if (!section || !video) return;
+      function startVideo() {
+        video.currentTime = 50;
+        video.play().catch(() => {});
+      }
+      if (video.readyState >= 1) { startVideo(); } else { video.addEventListener('loadedmetadata', startVideo); }
       new IntersectionObserver((entries) => {
         entries.forEach(e => {
           if (e.isIntersecting) {
             section.classList.add('is-visible');
-            video.play();
+            video.play().catch(() => {});
           }
         });
       }, { threshold: 0.15 }).observe(section);
@@ -2068,6 +2133,7 @@
     // ── Silicon wafer grid background ─────────────
     (function () {
       const canvas = document.getElementById('bg-canvas');
+      if (!canvas) return;
       const ctx    = canvas.getContext('2d');
 
       const SZ = 15;
@@ -2215,6 +2281,24 @@
   </script>
 
   <script>
+    // ── Hero video: loop from 0:33 to end ─────────
+    (function () {
+      const vid = document.getElementById('hero-bg-video');
+      if (!vid) return;
+      const START = 33;
+      vid.addEventListener('loadedmetadata', function () {
+        vid.currentTime = START;
+        vid.play().catch(() => {});
+      });
+      vid.addEventListener('timeupdate', function () {
+        if (vid.duration && vid.currentTime >= vid.duration - 0.15) {
+          vid.currentTime = START;
+        }
+      });
+    })();
+  </script>
+
+  <script>
     // ── Satellite section: shine sweeps across text in sync with video sun ──
     (function () {
       const video  = document.querySelector('.space-compute-bg-video');
@@ -2222,7 +2306,10 @@
       if (!video || !textEl) return;
 
       function update() {
-        const progress = video.duration ? video.currentTime / video.duration : 0;
+        const half = video.duration ? video.duration / 2 : 1;
+        const t    = video.currentTime;
+        // First half: forward (0→1), second half: reverse (1→0)
+        const progress = t <= half ? t / half : 1 - (t - half) / half;
         // Peak starts at 57% (original center-shine) and sweeps to 110% (off right edge)
         const peak = 57 + progress * 53;
         const c  = v => Math.min(100, v).toFixed(1);
