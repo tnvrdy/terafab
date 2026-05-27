@@ -414,11 +414,8 @@ function animateNumber(el, finalText) {
   const section = document.getElementById('section-mass-drive');
   const video   = document.getElementById('mass-drive-video');
   if (!section || !video) return;
-  function startVideo() {
-    video.currentTime = 50;
-    video.play().catch(() => {});
-  }
-  if (video.readyState >= 1) { startVideo(); } else { video.addEventListener('loadedmetadata', startVideo); }
+  function seekToStart() { video.currentTime = 50; }
+  if (video.readyState >= 1) { seekToStart(); } else { video.addEventListener('loadedmetadata', seekToStart); }
   new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -638,7 +635,7 @@ updateFade();
 (function () {
   const vid = document.getElementById('hero-bg-video');
   if (!vid) return;
-  const START = 33;
+  const START = 34;
   vid.addEventListener('loadedmetadata', function () {
     vid.currentTime = START;
     vid.play().catch(() => {});
