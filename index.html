@@ -135,6 +135,7 @@
       align-items: center;
       gap: 30px;
       margin-top: 40px;
+      margin-left: 13px;
     }
 
     .logo-link {
@@ -335,6 +336,8 @@
       opacity: 0;
       transition: opacity 0.3s ease;
       pointer-events: none;
+      transform: scale(0.83);
+      transform-origin: center center;
     }
 
     .section-kardashev {
@@ -862,7 +865,18 @@
       width: 100%;
       height: 160vh;
       overflow: hidden;
-      background: url('assets/images/sat-sunny.jpg') center center / cover no-repeat;
+      background: #06060a;
+    }
+
+    .space-compute-bg-video {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: auto;
+      transform: translateY(-50%);
+      z-index: 0;
+      pointer-events: none;
     }
 
     .section-space-compute::before {
@@ -883,15 +897,15 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 80px;
-      background: linear-gradient(to bottom, transparent, #06060a);
+      height: 32%;
+      background: linear-gradient(to bottom, transparent 0%, rgba(6,6,10,0.6) 50%, #06060a 100%);
       pointer-events: none;
       z-index: 1;
     }
 
     .space-compute-text {
       position: absolute;
-      top: 14%;
+      top: 27%;
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       width: 80%;
@@ -902,11 +916,11 @@
       letter-spacing: 0.04em;
       line-height: 1.5;
       background: linear-gradient(to right,
-        rgba(255,255,255,0.18) 0%,
-        rgba(255,255,255,0.75) 35%,
+        rgba(255,255,255,0.22)  0%,
+        rgba(255,255,255,0.72) 31%,
         rgba(255,255,255,1.00) 57%,
-        rgba(255,255,255,0.75) 74%,
-        rgba(255,255,255,0.18) 100%
+        rgba(255,255,255,0.72) 77%,
+        rgba(255,255,255,0.22) 100%
       );
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -923,7 +937,7 @@
 
     .space-compute-groups {
       position: absolute;
-      bottom: 9%;
+      bottom: 14%;
       left: 10%;
       display: flex;
       gap: 60px;
@@ -1470,6 +1484,9 @@
 
   <!-- ── Space compute ────────────────────────────── -->
   <section class="section-space-compute" id="section-space-compute">
+    <video class="space-compute-bg-video" autoplay muted playsinline loop>
+      <source src="assets/satellite-video.mp4" type="video/mp4">
+    </video>
     <p class="space-compute-text" id="space-compute-text">Space is the only truly scalable solution for the future of AI.</p>
     <div class="space-compute-groups" id="space-compute-groups">
       <div class="compute-group">
@@ -2121,6 +2138,9 @@
               ph2: Math.random() * Math.PI * 2,
               sp1: 0.25 + Math.random() * 0.5,
               sp2: (0.25 + Math.random() * 0.5) * 1.618,
+              push: 0,
+              pinPh: Math.random() * Math.PI * 2,
+              pinSp: 0.0008 + Math.random() * 0.0018,
             });
           }
         }
@@ -2151,22 +2171,31 @@
 
           const mdx  = sq.x + SZ * 0.5 - mouse.x;
           const mdy  = sq.y + SZ * 0.5 - mouse.y;
-          const glow = Math.max(0, 1 - Math.sqrt(mdx*mdx + mdy*mdy) / 400) ** 1.6;
+          const dist = Math.sqrt(mdx*mdx + mdy*mdy);
+          const glow = Math.max(0, 1 - dist / 900) ** 1.6;
+
+          const influence = Math.max(0, 1 - dist / 200) ** 1.8;
+          // Each square oscillates independently in [-1,+1]; scale by influence so
+          // only squares near the cursor move, and stronger at center.
+          const pinOsc    = Math.sin(t * sq.pinSp + sq.pinPh);
+          const pushTarget = influence * ((pinOsc + 1) * 0.5); // 0..1, per-square phase
+          const lerpRate   = pushTarget > sq.push ? 0.18 : 0.09;
+          sq.push += (pushTarget - sq.push) * lerpRate;
 
           let blobGlow = 0;
           for (const b of blobs) {
             const bdx = sq.x + SZ * 0.5 - b.x;
             const bdy = sq.y + SZ * 0.5 - b.y;
-            blobGlow += Math.max(0, 1 - Math.sqrt(bdx*bdx + bdy*bdy) / 430) ** 2 * b.a;
+            blobGlow += Math.max(0, 1 - Math.sqrt(bdx*bdx + bdy*bdy) / 960) ** 2 * b.a;
           }
           blobGlow = Math.min(1, blobGlow) * 0.30;
 
-          const combinedGlow = Math.min(1, glow + blobGlow);
+          const combinedGlow = Math.min(1, glow + blobGlow + sq.push * 0.65);
 
           const rv = (sq.base[0] + (sq.lit[0] - sq.base[0]) * combinedGlow) | 0;
           const gv = (sq.base[1] + (sq.lit[1] - sq.base[1]) * combinedGlow) | 0;
           const bv = (sq.base[2] + (sq.lit[2] - sq.base[2]) * combinedGlow) | 0;
-          const a  = Math.min(0.86, sq.baseAlpha * flick * sq.brightNoise + glow * 0.4 + blobGlow * 0.20) * fade;
+          const a  = Math.min(0.86, sq.baseAlpha * flick * sq.brightNoise + glow * 0.4 + blobGlow * 0.20 + sq.push * 0.35) * fade;
 
           if (a > 0.005) {
             ctx.fillStyle = `rgba(${rv},${gv},${bv},${a.toFixed(2)})`;
@@ -2181,6 +2210,33 @@
       window.addEventListener('resize', build);
       build();
       requestAnimationFrame(draw);
+    })();
+  </script>
+
+  <script>
+    // ── Satellite section: shine sweeps across text in sync with video sun ──
+    (function () {
+      const video  = document.querySelector('.space-compute-bg-video');
+      const textEl = document.getElementById('space-compute-text');
+      if (!video || !textEl) return;
+
+      function update() {
+        const progress = video.duration ? video.currentTime / video.duration : 0;
+        // Peak starts at 57% (original center-shine) and sweeps to 110% (off right edge)
+        const peak = 57 + progress * 53;
+        const c  = v => Math.min(100, v).toFixed(1);
+        textEl.style.backgroundImage = `linear-gradient(to right,
+          rgba(255,255,255,0.22)  0%,
+          rgba(255,255,255,0.72) ${c(peak - 26)}%,
+          rgba(255,255,255,1.00) ${c(peak)}%,
+          rgba(255,255,255,0.72) ${c(peak + 20)}%,
+          rgba(255,255,255,0.22) ${c(peak + 45)}%,
+          rgba(255,255,255,0.22) 100%
+        )`;
+        requestAnimationFrame(update);
+      }
+
+      requestAnimationFrame(update);
     })();
   </script>
 
