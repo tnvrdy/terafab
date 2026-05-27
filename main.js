@@ -158,10 +158,11 @@ function triggerKardashev() {
     clearEndWatcher();
     const seg  = SEGS[`${from}-${to}`];
     const myId = ++seekId;
+    video.style.opacity = '0';
     video.currentTime = seg.start + SKIP;
-    video.style.opacity = '1';
     video.addEventListener('seeked', function onSeeked() {
       if (seekId !== myId) return;
+      video.style.opacity = '1';
       video.play().catch(() => {});
       const segEnd = seg.end - 0.05;
       function checkEnd() {
