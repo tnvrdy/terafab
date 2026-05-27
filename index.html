@@ -524,6 +524,7 @@
       top: 0;
       left: calc(-30vw + 50px);
       width: 200vw;
+      height: auto;
       z-index: 0;
       pointer-events: none;
       user-select: none;
@@ -1298,7 +1299,7 @@
   <section class="section-harnessing-block">
     <div class="harn-scroll-track">
       <div class="harn-sticky">
-        <img class="harn-sun-img" src="assets/images/harn-sun.jpg" alt="" draggable="false">
+        <video class="harn-sun-img" src="assets/harness-sun.mp4" autoplay muted playsinline loop></video>
         <div class="you-are-here">
           <div class="yah-line"></div>
           <span class="yah-label">You are here</span>
@@ -1828,8 +1829,8 @@
         }
       }
       window.addEventListener('scroll', scheduleUpdate, { passive: true });
-      // Run after image loads so offsetHeight is available
-      if (img.complete) { update(); } else { img.addEventListener('load', update); }
+      // Run after video metadata loads so offsetHeight is available
+      if (img.readyState >= 1) { update(); } else { img.addEventListener('loadedmetadata', update); }
     })();
 
     // ── Shared number animation ───────────────────
