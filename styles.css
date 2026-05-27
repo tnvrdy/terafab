@@ -1,0 +1,1214 @@
+@font-face {
+  font-family: 'Mohave';
+  src: url('assets/fonts/Mohave/Mohave-VariableFont_wght.ttf') format('truetype');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mohave';
+  src: url('assets/fonts/Mohave/Mohave-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  overflow-x: hidden;
+  background: #06060a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #fff;
+}
+
+::-webkit-scrollbar { display: none; }
+
+::selection {
+  background: #000000;
+  color: #fff;
+}
+
+/* ── Scene / Background ─────────────────────── */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#bg-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.scene-grain {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 192px 192px;
+}
+
+.scene-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 18%, rgba(0,0,0,0.97) 100%);
+}
+
+/* ── Hero ───────────────────────────────────── */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  user-select: none;
+  margin-top: -40px;
+}
+
+.scroll-caret {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  border-right: 1px solid rgba(255, 255, 255, 0.28);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+  opacity: 0;
+  animation: caretFadeIn 1s ease 10s forwards, caretBounce 2s ease-in-out 10s infinite;
+  z-index: 2;
+}
+
+@keyframes caretFadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes caretBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0)   rotate(45deg); }
+  50%       { transform: translateX(-50%) translateY(6px) rotate(45deg); }
+}
+
+.hero-video-top {
+  position: relative;
+  height: 50vh;
+  overflow: hidden;
+  background: #06060a;
+  flex-shrink: 0;
+}
+
+#hero-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+}
+
+.hero-video-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65%;
+  background: linear-gradient(to bottom, transparent, #06060a);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-content-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 0 24px;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+}
+
+.wordmark img {
+  height: 58px;
+  width: auto;
+  filter: brightness(0) invert(1) drop-shadow(0 0 24px rgba(255,255,255,0.28));
+}
+
+.subtitle {
+  margin-bottom: 18px;
+  font-family: 'Mohave', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  padding-right: 0.3em;
+}
+
+.v-rule {
+  margin: 36px 0 18px;
+  width: 1px;
+  height: 52px;
+  background: linear-gradient(to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.22) 25%,
+    rgba(255, 255, 255, 0.22) 75%,
+    transparent
+  );
+}
+
+.logos {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-top: 40px;
+  margin-left: 16px;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo-link img {
+  width: auto;
+  filter: brightness(0) invert(1);
+  opacity: 0.5;
+  transition: opacity 0.28s ease;
+  display: block;
+}
+
+.logo-link:hover img { opacity: 0.88; }
+
+.logo-tesla  img { height: 17px; }
+.logo-xai    img { height: 22px; }
+.logo-spacex img { height: 22px; }
+
+.logo-sep {
+  width: 1px;
+  height: 13px;
+  background: rgba(255, 255, 255, 0.16);
+  flex-shrink: 0;
+}
+
+.buttons {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 30px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
+}
+
+.btn-solid {
+  background: rgba(255, 255, 255, 0.94);
+  color: #08080f;
+  border: 1px solid transparent;
+}
+
+.btn-solid:hover { background: #ffffff; }
+
+.btn-ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.94);
+}
+
+/* ── Hero entrance animations ────────────────── */
+
+.appear {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.d1 { animation-delay: 0.12s; }
+.d2 { animation-delay: 0.28s; }
+.d3 { animation-delay: 0.44s; }
+.d4 { animation-delay: 0.58s; }
+.d5 { animation-delay: 0.70s; }
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── First text (splash) ─────────────────────── */
+
+.section-splash-text {
+  position: relative;
+  z-index: 1;
+  padding: 88px 24px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.splash-text {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.45rem);
+  font-weight: 300;
+  line-height: 1.72;
+  color: rgba(255, 255, 255, 0.62);
+  max-width: 660px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.splash-text.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Reveal section (second text) ───────────── */
+
+.section-reveal {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 180px 24px 220px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    #06060a 180px,
+    #06060a calc(100% - 200px),
+    transparent 100%
+  );
+}
+
+.reveal-text {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.74);
+  max-width: 740px;
+  text-align: center;
+}
+
+.reveal-line {
+  display: block;
+}
+
+.reveal-line.bold {
+  font-weight: 500;
+}
+
+.char {
+  display: inline-block;
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+}
+
+.char.is-visible {
+  opacity: 1;
+}
+
+/* ── Aspire section ─────────────────────── */
+
+.section-aspire {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-start;
+  padding: 40px 24px 48px 10%;
+}
+
+.aspire-text {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 300;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.80);
+  text-align: left;
+}
+
+/* ── Kardashev section ───────────────────── */
+
+.kard-universe {
+  position: relative;
+}
+
+.kard-bg-video {
+  position: absolute;
+  top: -200px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  transform: scale(0.83);
+  transform-origin: center center;
+}
+
+.section-kardashev {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 220px 10%;
+}
+
+.kard-word {
+  display: block;
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(4rem, 8.8vw, 8.8rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #ffffff;
+  line-height: 1.0;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+}
+
+.kard-word.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Kardashev timeline ─────────────────────── */
+
+.kard-scale-row {
+  display: flex;
+  align-items: flex-start;
+}
+
+.kard-timeline {
+  flex: 1;
+  padding-left: 28px;
+  margin-top: calc(clamp(2rem, 4.4vw, 4.4rem) - 4.5px);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.kard-timeline.is-visible { opacity: 1; }
+
+.timeline-track {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right,
+    rgba(255,255,255,0.20),
+    rgba(255,255,255,0.26) 8%,
+    rgba(255,255,255,0.26) 92%,
+    rgba(255,255,255,0.08)
+  );
+}
+
+.timeline-tier {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.tier-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 6px 2px rgba(255,255,255,0.50),
+    0 0 14px 5px rgba(255,255,255,0.16);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  transition: box-shadow 0.22s ease;
+}
+
+.timeline-tier:hover .tier-dot,
+.timeline-tier.is-active .tier-dot {
+  box-shadow:
+    0 0 10px 3px rgba(255,255,255,0.85),
+    0 0 24px 8px rgba(255,255,255,0.28);
+}
+
+.tier-drop-line {
+  width: 1px;
+  height: 18px;
+  background: rgba(255,255,255,0.20);
+  flex-shrink: 0;
+}
+
+.tier-box {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 13px 18px;
+  text-align: left;
+  cursor: pointer;
+  color: #fff;
+  width: min(90%, 200px);
+  transition: border-color 0.22s ease, background 0.22s ease;
+}
+
+.timeline-tier:hover .tier-box,
+.timeline-tier.is-active .tier-box {
+  border-color: rgba(255,255,255,0.46);
+  background: rgba(255,255,255,0.04);
+}
+
+.tier-label {
+  font-family: 'Mohave', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.86);
+  margin-bottom: 7px;
+}
+
+.tier-desc {
+  font-family: 'Mohave', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.52);
+}
+
+.tier-desc strong {
+  font-weight: 500;
+  color: rgba(255,255,255,0.82);
+}
+
+/* ── "What will it take?" section ───────────── */
+
+.section-wtit {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 120px 24px 60px;
+  background: #06060a;
+}
+
+.wtit-text {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.78);
+  text-align: center;
+}
+
+/* ── Harnessing block (text + bullets) ───────── */
+
+.section-harnessing-block {
+  position: relative;
+  z-index: 10;
+}
+
+.harn-scroll-track {
+  height: 300vh;
+  position: relative;
+}
+
+.harn-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #06060a;
+}
+
+.harn-sun-img {
+  position: absolute;
+  top: 0;
+  left: calc(-30vw + 50px);
+  width: 200vw;
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+}
+
+.you-are-here {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: calc(24% + 50px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 15px;
+  pointer-events: none;
+}
+
+.yah-line {
+  width: 36px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
+.yah-label {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.75rem, 1.1vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+}
+
+.harn-content {
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  right: 55%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.bullets-container {
+  margin-top: 40px;
+}
+
+.bullet-item {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.58);
+  line-height: 2.2;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+}
+
+.bullet-item.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Scaling section ─────────────────────────── */
+
+.section-scaling {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 80px 6% 220px;
+  background: #06060a;
+}
+
+.scaling-inner {
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+}
+
+.scaling-header {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(2rem, 4.2vw, 3.8rem);
+  font-weight: 300;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.82);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.scaling-stats {
+  margin-top: 48px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.scaling-stats.is-visible { opacity: 1; }
+
+.stat-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.stat-content {
+  display: grid;
+}
+
+.stat-number {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(2rem, 4.5vw, 3.8rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.96);
+  white-space: nowrap;
+  line-height: 1;
+  text-align: center;
+}
+
+.stat-label {
+  margin-top: 12px;
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.75rem, 1.3vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.40);
+  line-height: 1.65;
+  text-align: center;
+}
+
+/* ── Scale bars ─────────────────────────────── */
+
+.scale-bar-row {
+  margin-top: 56px;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  position: relative;
+}
+
+.scale-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 12px;
+  overflow: hidden;
+}
+
+.scale-bar-clip {
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+}
+
+.scale-bar-img {
+  display: block;
+  width: auto;
+  transform: translateY(100%);
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scale-bar-label {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.9rem, 1.6vw, 1.25rem);
+  font-weight: 300;
+  letter-spacing: 0.10em;
+  color: #ffffff;
+  text-align: right;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(400px);
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Builders section ────────────────────────── */
+
+.section-builders {
+  position: relative;
+  z-index: 1;
+  padding: 40px 10% 220px 10%;
+}
+
+.builders-logos {
+  margin-top: 56px;
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.builders-logos.is-visible { opacity: 1; }
+
+.builder-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.builder-rule {
+  margin-top: 18px;
+  width: 96%;
+  height: 1px;
+  background: linear-gradient(to right, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+}
+
+.builder-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.builder-list-item {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.78rem, 1.2vw, 0.95rem);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.50);
+  line-height: 2.1;
+}
+
+/* ── Chip gallery ───────────────────────────────── */
+
+.section-chip-gallery {
+  position: relative;
+  z-index: 1;
+  padding: 0 12% 120px;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.section-chip-gallery.is-visible { opacity: 1; }
+
+.section-chip-gallery::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, #06060a);
+  pointer-events: none;
+}
+
+.chip-gallery {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+
+.chip-card {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.chip-card-front {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 13;
+}
+
+.chip-card-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.chip-label {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.62rem, 0.9vw, 0.78rem);
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.88);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.chip-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 6, 10, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.chip-card:hover .chip-hover-overlay {
+  opacity: 1;
+}
+
+.chip-back-text {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.9rem, 1.6vw, 1.3rem);
+  font-weight: 300;
+  letter-spacing: 0.10em;
+  color: rgba(255, 255, 255, 0.90);
+  text-align: center;
+  line-height: 1.5;
+  text-transform: uppercase;
+  padding: 0 20px;
+}
+
+/* ── Mass driver video section ──────────────────── */
+
+.section-space-compute {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 160vh;
+  overflow: hidden;
+  background: #06060a;
+}
+
+.space-compute-bg-video {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: auto;
+  transform: translateY(-50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.section-space-compute::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, #06060a, transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.section-space-compute::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(6,6,10,0.5) 30%, rgba(6,6,10,0.85) 55%, #06060a 80%, #06060a 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.space-compute-text {
+  position: absolute;
+  top: 27%;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  width: 80%;
+  text-align: center;
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(1.6rem, 3.0vw, 2.4rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  background: linear-gradient(to right,
+    rgba(255,255,255,0.22)  0%,
+    rgba(255,255,255,0.72) 31%,
+    rgba(255,255,255,1.00) 57%,
+    rgba(255,255,255,0.72) 77%,
+    rgba(255,255,255,0.22) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0;
+  transition: opacity 1.3s ease, transform 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 2;
+}
+
+.space-compute-text.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.space-compute-groups {
+  position: absolute;
+  bottom: 14%;
+  left: 10%;
+  display: flex;
+  gap: 60px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.space-compute-groups.is-visible { opacity: 1; }
+
+.compute-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.compute-group-title {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+  font-weight: 400;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+}
+
+.compute-group-rule {
+  margin-top: 14px;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+}
+
+.compute-group-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.compute-group-item {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.78rem, 1.2vw, 0.95rem);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.50);
+  line-height: 2.1;
+  white-space: nowrap;
+}
+
+.section-mass-drive {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.section-mass-drive::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, #06060a);
+  pointer-events: none;
+}
+
+.section-mass-drive.is-visible { opacity: 1; }
+
+.mass-drive-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mass-drive-text {
+  position: absolute;
+  left: 10%;
+  top: 50%;
+  transform: translateY(calc(-50% - 15px));
+}
+
+.mass-drive-label {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.88rem, 1.5vw, 1.15rem);
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.60);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.mass-drive-heading {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(1.8rem, 3.6vw, 2.7rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.88);
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* ── Footer ─────────────────────────────────────── */
+
+.section-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 24px 160px;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.section-footer.is-visible { opacity: 1; }
+
+.footer-subtitle {
+  font-family: 'Mohave', sans-serif;
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+/* ── Chips heading section ──────────────────────── */
+
+.section-chips-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 80px 10% 80px;
+}
+
+.chips-heading-text {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.80);
+  text-align: center;
+}
+
+/* ── Two-stat section ──────────────────────────── */
+
+.section-two-stats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  padding: 80px 10% 100px;
+}
+
+.two-stat-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.two-stat-col.is-visible { opacity: 1; }
+
+.two-stat-number {
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(2rem, 4.4vw, 3.7rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.two-stat-number--lg {
+  transition: font-size 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.two-stat-year {
+  font-size: 0.75em;
+}
+
+.two-stat-col.is-visible .two-stat-number--lg {
+  font-size: clamp(3rem, 6.5vw, 5.5rem);
+}
+
+.two-stat-label {
+  margin-top: 14px;
+  font-family: 'Mohave', sans-serif;
+  font-size: clamp(0.78rem, 1.3vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.10em;
+  color: rgba(255, 255, 255, 0.40);
+  line-height: 1.6;
+}
+
+/* ── Building photo ─────────────────────────── */
+
+.section-building {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.section-building.is-visible { opacity: 1; }
+
+.building-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.building-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 50% at 0% 0%,   rgba(6,6,10,0.97) 0%, transparent 100%),
+    radial-gradient(ellipse 55% 50% at 100% 0%, rgba(6,6,10,0.97) 0%, transparent 100%),
+    radial-gradient(ellipse 90% 80% at 50% 50%, transparent 30%, #06060a 100%);
+  pointer-events: none;
+}
